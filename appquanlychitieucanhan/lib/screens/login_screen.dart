@@ -72,7 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (!mounted) return;
     // ✅ dùng named route, không MaterialPageRoute sang Home
-    Navigator.pushReplacementNamed(context, '/home');
+    Navigator.pushReplacementNamed(context, '/about');
   }
 
   void _goRegister() {
