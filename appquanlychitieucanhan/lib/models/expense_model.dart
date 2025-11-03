@@ -38,7 +38,7 @@ class ExpenseModel extends ChangeNotifier {
     'Ăn uống',
     'Đi lại',
     'Hóa đơn',
-    'Mua sắm',
+    'Mua sắm'
   ];
 
   List<String> get incomeCategories => List.unmodifiable(_incomeCategories);
@@ -58,41 +58,29 @@ class ExpenseModel extends ChangeNotifier {
     }
   }
 
-  void addIncome(
-    double amount,
-    String note,
-    String category, {
-    DateTime? date,
-  }) {
-    _transactions.add(
-      TransactionItem(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        type: 'income',
-        amount: amount,
-        note: note,
-        category: category,
-        date: date ?? DateTime.now(),
-      ),
-    );
+  void addIncome(double amount, String note, String category,
+      {DateTime? date}) {
+    _transactions.add(TransactionItem(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      type: 'income',
+      amount: amount,
+      note: note,
+      category: category,
+      date: date ?? DateTime.now(),
+    ));
     notifyListeners();
   }
 
-  void addExpense(
-    double amount,
-    String note,
-    String category, {
-    DateTime? date,
-  }) {
-    _transactions.add(
-      TransactionItem(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        type: 'expense',
-        amount: amount,
-        note: note,
-        category: category,
-        date: date ?? DateTime.now(),
-      ),
-    );
+  void addExpense(double amount, String note, String category,
+      {DateTime? date}) {
+    _transactions.add(TransactionItem(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      type: 'expense',
+      amount: amount,
+      note: note,
+      category: category,
+      date: date ?? DateTime.now(),
+    ));
     notifyListeners();
   }
 
@@ -111,12 +99,10 @@ class ExpenseModel extends ChangeNotifier {
   }
 
   double totalAmount({required String type, String? category}) {
-    return _transactions
-        .where((t) {
-          final matchType = t.type == type;
-          final matchCategory = category == null || t.category == category;
-          return matchType && matchCategory;
-        })
-        .fold(0, (sum, t) => sum + t.amount);
+    return _transactions.where((t) {
+      final matchType = t.type == type;
+      final matchCategory = category == null || t.category == category;
+      return matchType && matchCategory;
+    }).fold(0, (sum, t) => sum + t.amount);
   }
 }
