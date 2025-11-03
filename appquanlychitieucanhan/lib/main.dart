@@ -7,6 +7,7 @@ import 'l10n/l10n_ext.dart';
 
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
+import 'screens/about_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -52,6 +53,7 @@ class MyApp extends StatelessWidget {
         '/': (_) => const LoginScreen(),
         '/register': (_) => const RegisterScreen(),
         '/home': (_) => const HomePlaceholder(),
+        '/about':(_) => const AboutScreen()
       },
     );
   }
