@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'login_screen.dart';
 import '../l10n/l10n_ext.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -68,9 +68,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     if (prefs.containsKey('user_$username')) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(t.usernameExists)),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(t.usernameExists)));
       }
       setState(() => _isLoading = false);
       return;
@@ -80,11 +79,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     if (!mounted) return;
     setState(() => _isLoading = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(t.registerSuccess)),
-    );
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(t.registerSuccess)));
 
-    Navigator.pushReplacementNamed(context, '/');
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
+    );
+  }
+
+  void _goLogin() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
+    );
   }
 
   @override
@@ -119,9 +127,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           width: double.infinity,
                           fit: BoxFit.cover,
                           errorBuilder: (_, __, ___) => const Icon(
-                            Icons.person_add,
-                            size: 72,
-                            color: Colors.green,
+                            Icons.image_not_supported_outlined,
+                            size: 48,
+                            color: Colors.grey,
                           ),
                         ),
                       ),
@@ -240,10 +248,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          TextButton(
-                            onPressed: () =>
-                                Navigator.pushReplacementNamed(context, '/'),
-                            child: Text(t.loginButton),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(t.haveAccount),
+                              TextButton(
+                                onPressed: _isLoading ? null : _goLogin,
+                                child: Text(t.loginButton),
+                              ),
+                            ],
                           ),
                         ],
                       ),

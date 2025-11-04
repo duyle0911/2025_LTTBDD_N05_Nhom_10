@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../l10n/l10n_ext.dart';
+import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -71,17 +72,163 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (!mounted) return;
 
-    Navigator.pushReplacementNamed(context, '/home');
+    Navigator.pushReplacementNamed(context, '/');
   }
 
   void _goRegister() {
-    Navigator.pushNamed(context, '/register');
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const RegisterScreen()),
+    );
   }
 
-  void _forgotPassword() {
+  Future<void> _forgotPassword() async {
     final t = context.l10n;
+
+    final formKey = GlobalKey<FormState>();
+    final usernameCtrl = TextEditingController(text: _username.text.trim());
+    final newPassCtrl = TextEditingController();
+    final confirmCtrl = TextEditingController();
+
+    String? validateUsername(String? v) {
+      final s = (v ?? '').trim();
+      if (s.isEmpty) return t.pleaseEnterUsername;
+      if (s.length < 3) return t.usernameMinLen;
+      if (!RegExp(r'^[a-zA-Z0-9._-]+$').hasMatch(s)) return t.usernameRules;
+      return null;
+    }
+
+    String? validatePassword(String? v) {
+      final s = (v ?? '');
+      if (s.isEmpty) return t.pleaseEnterPassword;
+      if (s.length < 6) return t.passwordMinLen;
+      if (!RegExp(r'^(?=.*[A-Za-z])(?=.*\d).{6,}$').hasMatch(s)) {
+        return t.passwordRecommendLettersDigits;
+      }
+      return null;
+    }
+
+    String? validateConfirm(String? v) {
+      if (v == null || v.isEmpty) return t.pleaseConfirmPassword;
+      if (v != newPassCtrl.text) return t.passwordMismatch;
+      return null;
+    }
+
+    final ok = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (ctx) {
+        final inset = MediaQuery.of(ctx).viewInsets.bottom;
+        return Padding(
+          padding: EdgeInsets.fromLTRB(16, 8, 16, 16 + inset),
+          child: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  t.forgotPasswordQ,
+                  style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: usernameCtrl,
+                  decoration: InputDecoration(
+                    labelText: t.username,
+                    prefixIcon: const Icon(Icons.person),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.deny(RegExp(r'\s')),
+                  ],
+                  validator: validateUsername,
+                  textInputAction: TextInputAction.next,
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: newPassCtrl,
+                  decoration: InputDecoration(
+                    labelText: t.newPassword,
+                    prefixIcon: const Icon(Icons.lock_reset),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  obscureText: true,
+                  validator: validatePassword,
+                  textInputAction: TextInputAction.next,
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: confirmCtrl,
+                  decoration: InputDecoration(
+                    labelText: t.confirmPassword,
+                    prefixIcon: const Icon(Icons.lock_outline),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  obscureText: true,
+                  validator: validateConfirm,
+                  onFieldSubmitted: (_) => Navigator.of(ctx).pop(true),
+                ),
+                const SizedBox(height: 14),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.of(ctx).pop(false),
+                        child: Text(t.cancel),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          if (formKey.currentState!.validate()) {
+                            Navigator.of(ctx).pop(true);
+                          }
+                        },
+                        icon: const Icon(Icons.save),
+                        label: Text(t.save),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    if (ok != true || !mounted) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    final uname = usernameCtrl.text.trim();
+    if (!prefs.containsKey('user_$uname')) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(t.invalidCredentials)),
+      );
+      return;
+    }
+
+    await prefs.setString('user_$uname', newPassCtrl.text);
+
+    if (!mounted) return;
+
+    if (_username.text.trim().isEmpty) {
+      _username.text = uname;
+    }
+
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(t.forgotPasswordDemo)),
+      SnackBar(content: Text(t.passwordUpdated)),
     );
   }
 
