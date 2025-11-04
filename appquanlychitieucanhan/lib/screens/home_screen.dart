@@ -150,7 +150,7 @@ class HomeScreen extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(16),
                   child: Image.asset(
-                    'assets/images/banner_wallet.jpg',
+                    'assets/images/banner_wallet.png',
                     height: 70,
                     width: double.maxFinite,
                     fit: BoxFit.cover,

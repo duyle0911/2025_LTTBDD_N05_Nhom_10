@@ -27,7 +27,7 @@ flutter:
   uses-material-design: true
   generate: true
   assets:
-    - assets/images/banner_wallet.jpg
+    - assets/images/banner_wallet.png
     - assets/images/logo.png
     - assets/images/duy.png
     - assets/images/trong.png
