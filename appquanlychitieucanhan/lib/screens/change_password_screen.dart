@@ -37,7 +37,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   }
 
   Future<void> _submit() async {
-    final t = context.l10n; // ✅ non-null
+    final t = context.l10n;
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _busy = true);

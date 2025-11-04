@@ -27,7 +27,7 @@ class StatisticsCategoryList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.l10n; // ⬅️
+    final t = context.l10n;
     final fmt = _moneyFmt(context);
     final now = DateTime.now();
 

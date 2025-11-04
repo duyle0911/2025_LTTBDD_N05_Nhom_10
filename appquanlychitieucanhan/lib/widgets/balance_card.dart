@@ -20,7 +20,7 @@ class BalanceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final t = context.l10n; // ⬅️
+    final t = context.l10n;
     final isPositive = balance > 0;
     final accent = _accent(isPositive, theme);
     final fmt = _currencyFmt(context);

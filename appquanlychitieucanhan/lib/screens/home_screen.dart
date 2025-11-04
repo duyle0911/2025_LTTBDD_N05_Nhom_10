@@ -144,7 +144,6 @@ class HomeScreen extends StatelessWidget {
           return ListView(
             padding: EdgeInsets.only(bottom: bottomPad),
             children: [
-              // Banner
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
                 child: ClipRRect(
@@ -157,7 +156,6 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
-
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
@@ -184,9 +182,7 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
               ),
-
               const SizedBox(height: 12),
-
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
@@ -206,7 +202,6 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
               ),
-
               Padding(
                 padding: const EdgeInsets.only(bottom: 16),
                 child: _recentList(),

@@ -54,7 +54,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   Widget build(BuildContext context) {
     final expense = context.watch<ExpenseModel>();
     final theme = Theme.of(context);
-    final t = context.l10n; // ⬅️ non-null
+    final t = context.l10n;
     final df = DateFormat('dd/MM/yyyy');
 
     return Scaffold(
