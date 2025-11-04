@@ -51,7 +51,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
   @override
   Widget build(BuildContext context) {
     final expense = context.watch<ExpenseModel>();
-    final t = context.l10n; ️
+    final t = context.l10n; // ⬅️
     final df = DateFormat('dd/MM/yyyy');
 
     return Scaffold(
@@ -130,7 +130,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
           ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(bottom: ,
+              padding: const EdgeInsets.only(bottom: 8),
               child: TransactionListView(
                 expense: expense,
                 filter: _filter,
