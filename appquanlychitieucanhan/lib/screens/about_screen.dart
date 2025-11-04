@@ -8,8 +8,8 @@ class AboutScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.l10n;
     final members = [
-      {"name": "Lê Đức Duy - 23010772", "image": "assets/img/trong.png"},
-      {"name": "Nguyễn Văn Trọng - 23010817", "image": "assets/img/duy.png"},
+      {"name": "Lê Đức Duy - 23010772", "image": "assets/images/trong.png"},
+      {"name": "Nguyễn Văn Trọng - 23010817", "image": "assets/images/duy.png"},
     ];
 
     return Scaffold(
@@ -24,8 +24,8 @@ class AboutScreen extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(16),
               child: Image.asset(
-                "assets/img/team_banner.png",
-                height: 180,
+                "assets/images/team_banner.png",
+                height: 160,
                 width: double.infinity,
                 fit: BoxFit.cover,
               ),
