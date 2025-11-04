@@ -71,7 +71,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (!mounted) return;
 
-    Navigator.pushReplacementNamed(context, '/about');
+    Navigator.pushReplacementNamed(context, '/home');
   }
 
   void _goRegister() {
