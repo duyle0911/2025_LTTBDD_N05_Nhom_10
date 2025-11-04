@@ -165,7 +165,6 @@ class _HomePageState extends State<HomePage> {
   final _pages = const <Widget>[
     HomeScreen(),
     TransactionScreen(),
-    StatisticsScreen(),
     ProfileScreen(),
     AboutScreen(),
   ];
