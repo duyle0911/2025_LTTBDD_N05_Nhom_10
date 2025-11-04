@@ -110,7 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: Image.asset(
-                        'assets/img/logo.png',
+                        'assets/images/logo.png',
                         height: 72,
                         errorBuilder: (_, __, ___) => const Icon(
                           Icons.account_circle,

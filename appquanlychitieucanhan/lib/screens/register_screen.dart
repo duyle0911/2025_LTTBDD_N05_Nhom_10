@@ -114,7 +114,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(14),
                         child: Image.asset(
-                          'assets/img/register.png',
+                          'assets/images/register.png',
                           height: 120,
                           width: double.infinity,
                           fit: BoxFit.cover,

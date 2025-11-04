@@ -1,40 +1,35 @@
-name: cse702027_project_mobile
+name: quanlychitieucanhan
 description: "Personal Expense Manager – Flutter (Material 3, Provider)."
 publish_to: 'none'
-
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.3.0 <4.0.0'   
+  sdk: '>=3.3.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
-
   flutter_localizations:
     sdk: flutter
-  intl: ^0.20.2   
-
   provider: ^6.1.2
-
   shared_preferences: ^2.3.2
-
   fl_chart: ^0.68.0
-
+  intl: ^0.20.2
   cupertino_icons: ^1.0.8
-
-  rename: ^3.1.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
+  rename: ^3.1.0
 
 flutter:
   uses-material-design: true
   generate: true
-
   assets:
-    - assets/img/
-
-
+    - assets/images/banner_wallet.jpg
+    - assets/images/logo.png
+    - assets/images/duy.png
+    - assets/images/trong.png
+    - assets/images/team_banner.png
+    - assets/images/register.png

@@ -32,7 +32,6 @@ class HomeScreen extends StatelessWidget {
     final lc = Localizations.localeOf(context).languageCode;
     final name = lc == 'vi' ? 'vi_VN' : 'en_US';
     return NumberFormat.currency(locale: name, symbol: '₫', decimalDigits: 0);
-    // Nếu bạn muốn dùng VND tuyệt đối: NumberFormat.currency(locale: 'vi_VN', symbol: '₫', decimalDigits: 0);
   }
 
   @override
@@ -53,7 +52,6 @@ class HomeScreen extends StatelessWidget {
         builder: (_, m, __) {
           final fmt = _moneyFmt(context);
 
-          // Lấy 5 giao dịch gần nhất (không hiển thị balance)
           final recent = (m.transactions.toList()
                 ..sort((a, b) => b.date.compareTo(a.date)))
               .take(5)
@@ -160,7 +158,6 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
 
-              // Hai nút thêm nhanh (KHÔNG dùng t.addIncomeShort)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
@@ -190,7 +187,6 @@ class HomeScreen extends StatelessWidget {
 
               const SizedBox(height: 12),
 
-              // Header + View all
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
@@ -211,7 +207,6 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
 
-              // Danh sách giao dịch gần đây
               Padding(
                 padding: const EdgeInsets.only(bottom: 16),
                 child: _recentList(),
