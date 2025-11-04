@@ -64,6 +64,22 @@ class ProfileScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Image.asset(
+              'assets/images/profile_banner.png',
+              height: 140,
+              width: double.infinity,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => Container(
+                height: 140,
+                color: const Color(0xFFEFF3F8),
+                alignment: Alignment.center,
+                child: const Icon(Icons.image, size: 40, color: Colors.grey),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
           Card(
             elevation: 2,
             shape: RoundedRectangleBorder(
@@ -73,10 +89,18 @@ class ProfileScreen extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  const CircleAvatar(
+                  CircleAvatar(
                     radius: 36,
-                    backgroundColor: Color.fromARGB(255, 149, 185, 215),
-                    child: Icon(Icons.person, size: 44, color: Colors.white),
+                    backgroundColor: const Color.fromARGB(255, 149, 185, 215),
+                    backgroundImage: const AssetImage(
+                      'assets/images/user_avatar.png',
+                    ),
+                    onBackgroundImageError: (_, __) {},
+                    child: const Icon(
+                      Icons.person,
+                      size: 44,
+                      color: Colors.white,
+                    ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
