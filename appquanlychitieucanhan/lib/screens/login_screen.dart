@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-// ❌ ĐỪNG import '../main.dart';  gây vòng lặp import
 
 import '../l10n/l10n_ext.dart';
 
@@ -71,12 +70,11 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     if (!mounted) return;
-    // ✅ dùng named route, không MaterialPageRoute sang Home
+
     Navigator.pushReplacementNamed(context, '/about');
   }
 
   void _goRegister() {
-    // ✅ dùng named route, tránh import main.dart
     Navigator.pushNamed(context, '/register');
   }
 
