@@ -40,7 +40,7 @@ class AboutScreen extends StatelessWidget {
               physics: const NeverScrollableScrollPhysics(),
               shrinkWrap: true,
               itemCount: members.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 16),
+              separatorBuilder: (, _) => const SizedBox(height: 16),
               itemBuilder: (context, index) {
                 final member = members[index];
                 return Container(
@@ -88,3 +88,4 @@ class AboutScreen extends StatelessWidget {
     );
   }
 }
+ 
