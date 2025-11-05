@@ -190,5 +190,52 @@
 
   "about_title": "Về Chúng Tôi",
   "about_members_title": "Thành viên nhóm",
-  "tabAbout": "Giới thiệu"
+  "tabAbout": "Giới thiệu",
+  "tabWallet": "Ví tiền",
+  "walletTitle": "Ví tiền",
+  "chooseWalletTooltip": "Chọn ví",
+  "chooseWalletTitle": "Chọn ví",
+  "allWallets": "Tất cả ví",
+
+  "walletTypeCash": "Tiền mặt",
+  "walletTypeBank": "Ngân hàng",
+  "walletTypeCredit": "Thẻ tín dụng",
+  "walletTypeSavings": "Tiết kiệm",
+
+  "walletCreateTitle": "Tạo ví mới",
+  "walletEditTitle": "Sửa ví",
+  "walletAdded": "Đã thêm ví",
+  "walletUpdated": "Đã cập nhật ví",
+  "walletDeleted": "Đã xóa ví",
+
+  "deleteConfirmTitle": "Xác nhận xóa",
+  "walletDeleteConfirm": "Xóa ví “{name}”? Hành động này không thể hoàn tác.",
+  "@walletDeleteConfirm": { "placeholders": { "name": {} } },
+
+  "walletCannotDeleteWithBalance": "Không thể xóa. Ví “{name}” vẫn còn số dư {amount}. Vui lòng chuyển hết tiền hoặc điều chỉnh số dư về 0 trước.",
+  "@walletCannotDeleteWithBalance": { "placeholders": { "name": {}, "amount": {} } },
+
+  "walletNameLabel": "Tên ví",
+  "walletNameHint": "Ví tiền mặt / Ngân hàng ACB / Thẻ VIB…",
+  "walletNameRequired": "Tên ví là bắt buộc",
+  "walletTypeLabel": "Loại ví",
+  "initialBalanceLabel": "Số dư ban đầu",
+  "initialBalanceHint": "0",
+  "initialBalanceInvalid": "Số dư phải là số hợp lệ",
+  "currencyLabel": "Đơn vị tiền tệ",
+  "walletNoteHint": "4 số cuối thẻ / ghi chú khác…",
+
+  "reset": "Đặt lại",
+  "openFullForm": "Mở form toàn màn",
+  "createWalletButton": "Tạo ví",
+  "createWalletSectionTitle": "Tạo ví mới",
+  "badgeNew": "MỚI",
+  "walletNameShort": "Tên ví",
+  "walletNameHintShort": "Ví chính / Tiền mặt…",
+  "edit": "Sửa",
+  "addWalletFab": "Thêm ví",
+  "noWalletsHint": "Chưa có ví nào. Hãy tạo ví đầu tiên của bạn nhé!",
+  "cashflowChartTitle": "Biểu đồ thu chi theo thời gian",
+  "incomeFull": "Thu nhập",
+  "expenseFull": "Chi tiêu"
 }

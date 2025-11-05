@@ -190,5 +190,52 @@
 
   "about_title": "About Us",
   "about_members_title": "Team Members",
-  "tabAbout": "About"
+  "tabAbout": "About",
+  "tabWallet": "Wallet",
+  "walletTitle": "Wallets",
+  "chooseWalletTooltip": "Choose wallet",
+  "chooseWalletTitle": "Choose wallet",
+  "allWallets": "All wallets",
+
+  "walletTypeCash": "Cash",
+  "walletTypeBank": "Bank",
+  "walletTypeCredit": "Credit card",
+  "walletTypeSavings": "Savings",
+
+  "walletCreateTitle": "Create new wallet",
+  "walletEditTitle": "Edit wallet",
+  "walletAdded": "Wallet added",
+  "walletUpdated": "Wallet updated",
+  "walletDeleted": "Wallet deleted",
+
+  "deleteConfirmTitle": "Confirm delete",
+  "walletDeleteConfirm": "Delete wallet “{name}”? This cannot be undone.",
+  "@walletDeleteConfirm": { "placeholders": { "name": {} } },
+
+  "walletCannotDeleteWithBalance": "Cannot delete. Wallet “{name}” still has a balance of {amount}. Please move funds or set the balance to 0 first.",
+  "@walletCannotDeleteWithBalance": { "placeholders": { "name": {}, "amount": {} } },
+
+  "walletNameLabel": "Wallet name",
+  "walletNameHint": "e.g. Cash wallet / ACB Bank / VIB Credit…",
+  "walletNameRequired": "Wallet name is required",
+  "walletTypeLabel": "Wallet type",
+  "initialBalanceLabel": "Initial balance",
+  "initialBalanceHint": "0",
+  "initialBalanceInvalid": "Invalid number",
+  "currencyLabel": "Currency",
+  "walletNoteHint": "Last 4 digits / extra notes…",
+
+  "reset": "Reset",
+  "openFullForm": "Open full-screen form",
+  "createWalletButton": "Create wallet",
+  "createWalletSectionTitle": "Create a new wallet",
+  "badgeNew": "NEW",
+  "walletNameShort": "Wallet name",
+  "walletNameHintShort": "Main wallet / Cash…",
+  "edit": "Edit",
+  "addWalletFab": "Add wallet",
+  "noWalletsHint": "No wallets yet. Create your first wallet!",
+  "cashflowChartTitle": "Income and Expense over time",
+  "incomeFull": "Income",
+  "expenseFull": "Expense"
 }

@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'models/expense_model.dart';
 import 'screens/home_screen.dart';
-import 'screens/transaction_screen.dart';
+import 'screens/wallet_screen.dart';
 import 'screens/statistics_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/login_screen.dart';
@@ -19,14 +19,12 @@ import 'l10n/l10n_ext.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.dark,
     ),
   );
-
   runApp(
     ChangeNotifierProvider(
       create: (_) => ExpenseModel(),
@@ -70,7 +68,6 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     const seed = Color(0xFF0A84FF);
-
     return MaterialApp(
       onGenerateTitle: (ctx) => ctx.l10n.appTitle,
       debugShowCheckedModeBanner: false,
@@ -164,7 +161,7 @@ class _HomePageState extends State<HomePage> {
 
   final _pages = const <Widget>[
     HomeScreen(),
-    TransactionScreen(),
+    WalletScreen(),
     StatisticsScreen(),
     ProfileScreen(),
     AboutScreen(),
@@ -190,9 +187,9 @@ class _HomePageState extends State<HomePage> {
               label: t.tabHome,
             ),
             NavigationDestination(
-              icon: const Icon(Icons.add_circle_outline),
-              selectedIcon: const Icon(Icons.add_circle),
-              label: t.tabTransactions,
+              icon: const Icon(Icons.account_balance_wallet_outlined),
+              selectedIcon: const Icon(Icons.account_balance_wallet),
+              label: t.tabWallet,
             ),
             NavigationDestination(
               icon: const Icon(Icons.bar_chart_outlined),

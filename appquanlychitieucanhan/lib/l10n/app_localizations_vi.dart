@@ -204,10 +204,10 @@ class AppLocalizationsVi extends AppLocalizations {
   String get noCategoryMatch => 'Không có danh mục phù hợp';
 
   @override
-  String get incomeFull => 'Thu';
+  String get incomeFull => 'Thu nhập';
 
   @override
-  String get expenseFull => 'Chi';
+  String get expenseFull => 'Chi tiêu';
 
   @override
   String get alreadyIncome => 'Đã thu';
@@ -489,4 +489,120 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get tabAbout => 'Giới thiệu';
+
+  @override
+  String get tabWallet => 'Ví tiền';
+
+  @override
+  String get walletTitle => 'Ví tiền';
+
+  @override
+  String get chooseWalletTooltip => 'Chọn ví';
+
+  @override
+  String get chooseWalletTitle => 'Chọn ví';
+
+  @override
+  String get allWallets => 'Tất cả ví';
+
+  @override
+  String get walletTypeCash => 'Tiền mặt';
+
+  @override
+  String get walletTypeBank => 'Ngân hàng';
+
+  @override
+  String get walletTypeCredit => 'Thẻ tín dụng';
+
+  @override
+  String get walletTypeSavings => 'Tiết kiệm';
+
+  @override
+  String get walletCreateTitle => 'Tạo ví mới';
+
+  @override
+  String get walletEditTitle => 'Sửa ví';
+
+  @override
+  String get walletAdded => 'Đã thêm ví';
+
+  @override
+  String get walletUpdated => 'Đã cập nhật ví';
+
+  @override
+  String get walletDeleted => 'Đã xóa ví';
+
+  @override
+  String get deleteConfirmTitle => 'Xác nhận xóa';
+
+  @override
+  String walletDeleteConfirm(Object name) {
+    return 'Xóa ví “$name”? Hành động này không thể hoàn tác.';
+  }
+
+  @override
+  String walletCannotDeleteWithBalance(Object name, Object amount) {
+    return 'Không thể xóa. Ví “$name” vẫn còn số dư $amount. Vui lòng chuyển hết tiền hoặc điều chỉnh số dư về 0 trước.';
+  }
+
+  @override
+  String get walletNameLabel => 'Tên ví';
+
+  @override
+  String get walletNameHint => 'Ví tiền mặt / Ngân hàng ACB / Thẻ VIB…';
+
+  @override
+  String get walletNameRequired => 'Tên ví là bắt buộc';
+
+  @override
+  String get walletTypeLabel => 'Loại ví';
+
+  @override
+  String get initialBalanceLabel => 'Số dư ban đầu';
+
+  @override
+  String get initialBalanceHint => '0';
+
+  @override
+  String get initialBalanceInvalid => 'Số dư phải là số hợp lệ';
+
+  @override
+  String get currencyLabel => 'Đơn vị tiền tệ';
+
+  @override
+  String get walletNoteHint => '4 số cuối thẻ / ghi chú khác…';
+
+  @override
+  String get reset => 'Đặt lại';
+
+  @override
+  String get openFullForm => 'Mở form toàn màn';
+
+  @override
+  String get createWalletButton => 'Tạo ví';
+
+  @override
+  String get createWalletSectionTitle => 'Tạo ví mới';
+
+  @override
+  String get badgeNew => 'MỚI';
+
+  @override
+  String get walletNameShort => 'Tên ví';
+
+  @override
+  String get walletNameHintShort => 'Ví chính / Tiền mặt…';
+
+  @override
+  String get edit => 'Sửa';
+
+  @override
+  String get addWalletFab => 'Thêm ví';
+
+  @override
+  String get noWalletsHint =>
+      'Chưa có ví nào. Hãy tạo ví đầu tiên của bạn nhé!';
+
+  @override
+  String get cashflowChartTitle => 'Biểu đồ thu chi theo thời gian';
 }

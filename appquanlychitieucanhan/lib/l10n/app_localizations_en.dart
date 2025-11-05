@@ -487,4 +487,119 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tabAbout => 'About';
+
+  @override
+  String get tabWallet => 'Wallet';
+
+  @override
+  String get walletTitle => 'Wallets';
+
+  @override
+  String get chooseWalletTooltip => 'Choose wallet';
+
+  @override
+  String get chooseWalletTitle => 'Choose wallet';
+
+  @override
+  String get allWallets => 'All wallets';
+
+  @override
+  String get walletTypeCash => 'Cash';
+
+  @override
+  String get walletTypeBank => 'Bank';
+
+  @override
+  String get walletTypeCredit => 'Credit card';
+
+  @override
+  String get walletTypeSavings => 'Savings';
+
+  @override
+  String get walletCreateTitle => 'Create new wallet';
+
+  @override
+  String get walletEditTitle => 'Edit wallet';
+
+  @override
+  String get walletAdded => 'Wallet added';
+
+  @override
+  String get walletUpdated => 'Wallet updated';
+
+  @override
+  String get walletDeleted => 'Wallet deleted';
+
+  @override
+  String get deleteConfirmTitle => 'Confirm delete';
+
+  @override
+  String walletDeleteConfirm(Object name) {
+    return 'Delete wallet “$name”? This cannot be undone.';
+  }
+
+  @override
+  String walletCannotDeleteWithBalance(Object name, Object amount) {
+    return 'Cannot delete. Wallet “$name” still has a balance of $amount. Please move funds or set the balance to 0 first.';
+  }
+
+  @override
+  String get walletNameLabel => 'Wallet name';
+
+  @override
+  String get walletNameHint => 'e.g. Cash wallet / ACB Bank / VIB Credit…';
+
+  @override
+  String get walletNameRequired => 'Wallet name is required';
+
+  @override
+  String get walletTypeLabel => 'Wallet type';
+
+  @override
+  String get initialBalanceLabel => 'Initial balance';
+
+  @override
+  String get initialBalanceHint => '0';
+
+  @override
+  String get initialBalanceInvalid => 'Invalid number';
+
+  @override
+  String get currencyLabel => 'Currency';
+
+  @override
+  String get walletNoteHint => 'Last 4 digits / extra notes…';
+
+  @override
+  String get reset => 'Reset';
+
+  @override
+  String get openFullForm => 'Open full-screen form';
+
+  @override
+  String get createWalletButton => 'Create wallet';
+
+  @override
+  String get createWalletSectionTitle => 'Create a new wallet';
+
+  @override
+  String get badgeNew => 'NEW';
+
+  @override
+  String get walletNameShort => 'Wallet name';
+
+  @override
+  String get walletNameHintShort => 'Main wallet / Cash…';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get addWalletFab => 'Add wallet';
+
+  @override
+  String get noWalletsHint => 'No wallets yet. Create your first wallet!';
+
+  @override
+  String get cashflowChartTitle => 'Income and Expense over time';
 }

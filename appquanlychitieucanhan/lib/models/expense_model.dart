@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 
 class TransactionItem {
   final String id;
-  final String type; // 'income' | 'expense'
+  final String type;
   final double amount;
   final String note;
   final String category;
@@ -39,17 +39,15 @@ class TransactionItem {
 class ExpenseModel extends ChangeNotifier {
   final List<TransactionItem> _transactions = [];
 
-  // ---------- Helpers ----------
   bool _isIncome(String t) => t.toLowerCase() == 'income';
   bool _isExpense(String t) => t.toLowerCase() == 'expense';
 
   double _clampAmount(double v) => (v.isNaN || v.isInfinite || v < 0) ? 0.0 : v;
 
   void _sortByDateDesc() {
-    _transactions.sort((a, b) => b.date.compareTo(a.date)); // mới -> cũ
+    _transactions.sort((a, b) => b.date.compareTo(a.date));
   }
 
-  // ---------- Getters ----------
   double get income => _transactions
       .where((t) => _isIncome(t.type))
       .fold(0, (s, t) => s + t.amount);
@@ -92,7 +90,6 @@ class ExpenseModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ---------- Category management ----------
   void addIncomeCategory(String name) {
     if (!_incomeCategories.contains(name)) {
       _incomeCategories.add(name);
@@ -107,7 +104,6 @@ class ExpenseModel extends ChangeNotifier {
     }
   }
 
-  // ---------- CRUD Transactions ----------
   void addIncome(double amount, String note, String category,
       {DateTime? date}) {
     _transactions.add(TransactionItem(
@@ -137,7 +133,7 @@ class ExpenseModel extends ChangeNotifier {
   }
 
   void addTransaction({
-    required String type, // 'income' | 'expense'
+    required String type,
     required double amount,
     required String note,
     required String category,
@@ -179,7 +175,6 @@ class ExpenseModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ---------- Aggregations ----------
   double totalAmount({required String type, String? category}) {
     return _transactions.where((t) {
       final matchType =
@@ -189,7 +184,6 @@ class ExpenseModel extends ChangeNotifier {
     }).fold(0, (sum, t) => sum + t.amount);
   }
 
-  /// Tổng theo ngày cho loại 'income' hoặc 'expense'
   Map<DateTime, double> sumByDay(String type) {
     final out = <DateTime, double>{};
     final isInc = _isIncome(type);

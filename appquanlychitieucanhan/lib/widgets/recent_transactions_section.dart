@@ -8,6 +8,10 @@ class RecentTransactionsSection extends StatelessWidget {
   final ExpenseModel expense;
   const RecentTransactionsSection({super.key, required this.expense});
 
+  Color get _blue => const Color.fromARGB(255, 26, 150, 233);
+  Color get _purple => const Color.fromARGB(255, 71, 240, 130);
+  Color get _red => const Color.fromARGB(255, 7, 143, 227);
+
   NumberFormat _moneyFmt(BuildContext context) {
     final lc = Localizations.localeOf(context).languageCode;
     final name = lc == 'vi' ? 'vi_VN' : 'en_US';
@@ -35,11 +39,11 @@ class RecentTransactionsSection extends StatelessWidget {
         .toList();
 
     return Padding(
-      padding: const EdgeInsets.all(20), 
+      padding: const EdgeInsets.all(20),
       child: Container(
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF3A7BD5), Color(0xFF00D2FF)],
+          gradient: LinearGradient(
+            colors: [_blue, _purple, _red],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -57,19 +61,19 @@ class RecentTransactionsSection extends StatelessWidget {
                     width: double.infinity,
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.blueGrey.withOpacity(0.05),
+                      color: Colors.white.withOpacity(0.12),
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Column(
                       children: [
                         Icon(Icons.receipt_long,
-                            color: Colors.blueGrey.withOpacity(0.6), size: 40),
+                            color: Colors.white.withOpacity(0.9), size: 40),
                         const SizedBox(height: 8),
                         Text(
                           t.noTransactionsYet,
                           style: const TextStyle(
                             fontWeight: FontWeight.w600,
-                            color: Colors.white70,
+                            color: Colors.white,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -78,10 +82,9 @@ class RecentTransactionsSection extends StatelessWidget {
                   ),
                 )
               else ...[
-                // Header Row
                 Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   child: Row(
                     children: [
                       Text(
@@ -89,7 +92,7 @@ class RecentTransactionsSection extends StatelessWidget {
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white, // chữ màu trắng
+                          color: Colors.white,
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -120,7 +123,6 @@ class RecentTransactionsSection extends StatelessWidget {
                     ],
                   ),
                 ),
-                // List recent transactions
                 ListView.separated(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -135,11 +137,13 @@ class RecentTransactionsSection extends StatelessWidget {
                     final sign = isIncome ? '+' : '-';
 
                     return Card(
-                      elevation: 4,
+                      elevation: 2,
+                      color: Colors.white.withOpacity(.96),
+                      shadowColor: Colors.black26,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
-                        side: const BorderSide(
-                            color: Colors.white24, width: 1),
+                        side: BorderSide(
+                            color: Colors.white.withOpacity(.5), width: 1),
                       ),
                       child: ListTile(
                         leading: CircleAvatar(
@@ -168,7 +172,6 @@ class RecentTransactionsSection extends StatelessWidget {
                         onTap: () async {
                           final text = '$sign ${fmt.format(tr.amount)}';
                           await Clipboard.setData(ClipboardData(text: text));
-
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text(t.copiedBalance(text))),
                           );

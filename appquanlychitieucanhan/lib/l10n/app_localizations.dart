@@ -1027,6 +1027,228 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'About'**
   String get tabAbout;
+
+  /// No description provided for @tabWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet'**
+  String get tabWallet;
+
+  /// No description provided for @walletTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallets'**
+  String get walletTitle;
+
+  /// No description provided for @chooseWalletTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose wallet'**
+  String get chooseWalletTooltip;
+
+  /// No description provided for @chooseWalletTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose wallet'**
+  String get chooseWalletTitle;
+
+  /// No description provided for @allWallets.
+  ///
+  /// In en, this message translates to:
+  /// **'All wallets'**
+  String get allWallets;
+
+  /// No description provided for @walletTypeCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get walletTypeCash;
+
+  /// No description provided for @walletTypeBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank'**
+  String get walletTypeBank;
+
+  /// No description provided for @walletTypeCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit card'**
+  String get walletTypeCredit;
+
+  /// No description provided for @walletTypeSavings.
+  ///
+  /// In en, this message translates to:
+  /// **'Savings'**
+  String get walletTypeSavings;
+
+  /// No description provided for @walletCreateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create new wallet'**
+  String get walletCreateTitle;
+
+  /// No description provided for @walletEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit wallet'**
+  String get walletEditTitle;
+
+  /// No description provided for @walletAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet added'**
+  String get walletAdded;
+
+  /// No description provided for @walletUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet updated'**
+  String get walletUpdated;
+
+  /// No description provided for @walletDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet deleted'**
+  String get walletDeleted;
+
+  /// No description provided for @deleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm delete'**
+  String get deleteConfirmTitle;
+
+  /// No description provided for @walletDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete wallet “{name}”? This cannot be undone.'**
+  String walletDeleteConfirm(Object name);
+
+  /// No description provided for @walletCannotDeleteWithBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot delete. Wallet “{name}” still has a balance of {amount}. Please move funds or set the balance to 0 first.'**
+  String walletCannotDeleteWithBalance(Object name, Object amount);
+
+  /// No description provided for @walletNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet name'**
+  String get walletNameLabel;
+
+  /// No description provided for @walletNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Cash wallet / ACB Bank / VIB Credit…'**
+  String get walletNameHint;
+
+  /// No description provided for @walletNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet name is required'**
+  String get walletNameRequired;
+
+  /// No description provided for @walletTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet type'**
+  String get walletTypeLabel;
+
+  /// No description provided for @initialBalanceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Initial balance'**
+  String get initialBalanceLabel;
+
+  /// No description provided for @initialBalanceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'0'**
+  String get initialBalanceHint;
+
+  /// No description provided for @initialBalanceInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid number'**
+  String get initialBalanceInvalid;
+
+  /// No description provided for @currencyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get currencyLabel;
+
+  /// No description provided for @walletNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 4 digits / extra notes…'**
+  String get walletNoteHint;
+
+  /// No description provided for @reset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get reset;
+
+  /// No description provided for @openFullForm.
+  ///
+  /// In en, this message translates to:
+  /// **'Open full-screen form'**
+  String get openFullForm;
+
+  /// No description provided for @createWalletButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Create wallet'**
+  String get createWalletButton;
+
+  /// No description provided for @createWalletSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a new wallet'**
+  String get createWalletSectionTitle;
+
+  /// No description provided for @badgeNew.
+  ///
+  /// In en, this message translates to:
+  /// **'NEW'**
+  String get badgeNew;
+
+  /// No description provided for @walletNameShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet name'**
+  String get walletNameShort;
+
+  /// No description provided for @walletNameHintShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Main wallet / Cash…'**
+  String get walletNameHintShort;
+
+  /// No description provided for @edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
+  /// No description provided for @addWalletFab.
+  ///
+  /// In en, this message translates to:
+  /// **'Add wallet'**
+  String get addWalletFab;
+
+  /// No description provided for @noWalletsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'No wallets yet. Create your first wallet!'**
+  String get noWalletsHint;
+
+  /// No description provided for @cashflowChartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Income and Expense over time'**
+  String get cashflowChartTitle;
 }
 
 class _AppLocalizationsDelegate
