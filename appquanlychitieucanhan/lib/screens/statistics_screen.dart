@@ -81,98 +81,99 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          StatisticsSearch(
-            controller: _searchController,
-            searchText: _searchText,
-            onChanged: (val) => setState(() => _searchText = val.toLowerCase()),
-            onClear: () => setState(() => _searchText = ''),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Wrap(
-              spacing: 8,
-              children: [
-                ChoiceChip(
-                  label: Text(t.filterAll),
-                  selected: _filter == 'all',
-                  onSelected: (_) => _selectFilter('all'),
-                ),
-                ChoiceChip(
-                  label: Text(t.filterToday),
-                  selected: _filter == 'today',
-                  onSelected: (_) => _selectFilter('today'),
-                ),
-                ChoiceChip(
-                  label: Text(t.filterThisMonth),
-                  selected: _filter == 'month',
-                  onSelected: (_) => _selectFilter('month'),
-                ),
-                ChoiceChip(
-                  label: Text(t.filterCustomEllipsis),
-                  selected: _filter == 'custom',
-                  onSelected: (_) => _pickCustomRange(),
-                ),
-              ],
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            StatisticsSearch(
+              controller: _searchController,
+              searchText: _searchText,
+              onChanged: (val) =>
+                  setState(() => _searchText = val.toLowerCase()),
+              onClear: () => setState(() => _searchText = ''),
             ),
-          ),
-          if (_filter == 'custom' && _customRange != null)
             Padding(
-              padding: const EdgeInsets.only(top: 6),
-              child: Text(
-                '${t.rangeLabel}: ${df.format(_customRange!.start)} - ${df.format(_customRange!.end)}',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: Colors.grey[600],
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Wrap(
+                spacing: 8,
+                children: [
+                  ChoiceChip(
+                    label: Text(t.filterAll),
+                    selected: _filter == 'all',
+                    onSelected: (_) => _selectFilter('all'),
+                  ),
+                  ChoiceChip(
+                    label: Text(t.filterToday),
+                    selected: _filter == 'today',
+                    onSelected: (_) => _selectFilter('today'),
+                  ),
+                  ChoiceChip(
+                    label: Text(t.filterThisMonth),
+                    selected: _filter == 'month',
+                    onSelected: (_) => _selectFilter('month'),
+                  ),
+                  ChoiceChip(
+                    label: Text(t.filterCustomEllipsis),
+                    selected: _filter == 'custom',
+                    onSelected: (_) => _pickCustomRange(),
+                  ),
+                ],
+              ),
+            ),
+            if (_filter == 'custom' && _customRange != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Text(
+                  '${t.rangeLabel}: ${df.format(_customRange!.start)} - ${df.format(_customRange!.end)}',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: SegmentedButton<String>(
+                segments: [
+                  ButtonSegment(
+                    value: 'income',
+                    icon: const Icon(Icons.trending_up),
+                    label: Text(t.incomeShort),
+                  ),
+                  ButtonSegment(
+                    value: 'expense',
+                    icon: const Icon(Icons.trending_down),
+                    label: Text(t.expenseShort),
+                  ),
+                ],
+                selected: {_selectedChartType},
+                onSelectionChanged: (set) =>
+                    setState(() => _selectedChartType = set.first),
+                showSelectedIcon: false,
+                style: ButtonStyle(
+                  visualDensity: VisualDensity.compact,
+                  shape: WidgetStatePropertyAll(
+                    RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
                 ),
               ),
             ),
-          const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: SegmentedButton<String>(
-              segments: [
-                ButtonSegment(
-                  value: 'income',
-                  icon: const Icon(Icons.trending_up),
-                  label: Text(t.incomeShort),
-                ),
-                ButtonSegment(
-                  value: 'expense',
-                  icon: const Icon(Icons.trending_down),
-                  label: Text(t.expenseShort),
-                ),
-              ],
-              selected: {_selectedChartType},
-              onSelectionChanged: (set) =>
-                  setState(() => _selectedChartType = set.first),
-              showSelectedIcon: false,
-              style: ButtonStyle(
-                visualDensity: VisualDensity.compact,
-                shape: WidgetStatePropertyAll(
-                  RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                ),
-              ),
+            StatisticsSummary(
+              expense: expense,
+              selectedChartType: _selectedChartType,
+              onSelectType: (type) => setState(() => _selectedChartType = type),
+              filter: _filter,
+              customRange: _customRange,
+              searchText: _searchText,
             ),
-          ),
-          StatisticsSummary(
-            expense: expense,
-            selectedChartType: _selectedChartType,
-            onSelectType: (type) => setState(() => _selectedChartType = type),
-            filter: _filter,
-            customRange: _customRange,
-            searchText: _searchText,
-          ),
-          StatisticsChart(
-            expense: expense,
-            selectedChartType: _selectedChartType,
-            filter: _filter,
-            customRange: _customRange,
-            searchText: _searchText,
-          ),
-          Expanded(
-            child: Padding(
+            StatisticsChart(
+              expense: expense,
+              selectedChartType: _selectedChartType,
+              filter: _filter,
+              customRange: _customRange,
+              searchText: _searchText,
+            ),
+            Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: StatisticsCategoryList(
                 expense: expense,
@@ -182,8 +183,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 searchText: _searchText,
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
