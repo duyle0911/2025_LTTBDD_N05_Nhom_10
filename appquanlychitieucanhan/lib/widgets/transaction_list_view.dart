@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../models/expense_model.dart';
 import '../l10n/l10n_ext.dart';
 
@@ -85,13 +86,13 @@ class TransactionListView extends StatelessWidget {
 
     String prettyDay(BuildContext context, DateTime d) {
       final now = DateTime.now();
-      final isToday =
-          d.year == now.year && d.month == now.month && d.day == now.day;
       final y = now.subtract(const Duration(days: 1));
-      final isYesterday =
-          d.year == y.year && d.month == y.month && d.day == y.day;
-      if (isToday) return t.today;
-      if (isYesterday) return t.yesterday;
+      if (d.year == now.year && d.month == now.month && d.day == now.day) {
+        return t.today;
+      }
+      if (d.year == y.year && d.month == y.month && d.day == y.day) {
+        return t.yesterday;
+      }
       return DateFormat('dd/MM/yyyy').format(d);
     }
 
@@ -131,13 +132,11 @@ class TransactionListView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             dayHeader(k, list),
-            ...list
-                .map((tr) => _TransactionTile(
-                      item: tr,
-                      fmt: fmt,
-                      noNoteText: t.noNote,
-                    ))
-                .toList(),
+            ...list.map((tr) => _TransactionTile(
+                  item: tr,
+                  fmt: fmt,
+                  noNoteText: t.noNote,
+                )),
             const SizedBox(height: 4),
           ],
         );
@@ -179,98 +178,102 @@ class _TransactionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isIncome = item.type == 'income';
-    final icon = isIncome ? Icons.south_west : Icons.north_east;
     final color = isIncome ? Colors.green : Colors.redAccent;
-    final time = DateFormat('HH:mm').format(item.date);
-    final dateStr = DateFormat('dd/MM/yyyy HH:mm').format(item.date);
+    final icon = isIncome ? Icons.south_west : Icons.north_east;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      child: Card(
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-          child: Row(
-            children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: color.withOpacity(0.12),
-                child: Icon(icon, color: color),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            item.note.isNotEmpty ? item.note : noNoteText,
-                            style: const TextStyle(fontWeight: FontWeight.w700),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: color.withOpacity(0.10),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            (isIncome ? '+ ' : '- ') + fmt.format(item.amount),
-                            style: TextStyle(
-                              color: color,
-                              fontWeight: FontWeight.w800,
-                              fontSize: 13.5,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.blueGrey.withOpacity(0.08),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.category,
-                                  size: 14, color: Colors.blueGrey),
-                              const SizedBox(width: 4),
-                              Text(item.category,
-                                  style:
-                                      const TextStyle(color: Colors.blueGrey)),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Icon(Icons.access_time,
-                            size: 14, color: Colors.grey[600]),
-                        const SizedBox(width: 4),
-                        Text(time,
-                            style: TextStyle(
-                                color: Colors.grey[700], fontSize: 12.5)),
-                        const Spacer(),
-                        Text(dateStr,
-                            style: TextStyle(
-                                color: Colors.grey[500], fontSize: 12)),
-                      ],
-                    ),
-                  ],
+    return GestureDetector(
+      onLongPress: () => _showEditDialog(context),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        child: Card(
+          elevation: 2,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor: color.withOpacity(0.12),
+                  child: Icon(icon, color: color),
                 ),
-              ),
-            ],
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    item.note.isNotEmpty ? item.note : noNoteText,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  (isIncome ? '+ ' : '- ') + fmt.format(item.amount),
+                  style: TextStyle(
+                    color: color,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 13.5,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+
+  void _showEditDialog(BuildContext context) {
+    final expense = context.read<ExpenseModel>();
+
+    final TextEditingController noteCtrl =
+        TextEditingController(text: item.note);
+    final TextEditingController amountCtrl =
+        TextEditingController(text: item.amount.toString());
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Chỉnh sửa giao dịch'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: noteCtrl,
+              decoration: const InputDecoration(labelText: 'Ghi chú'),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: amountCtrl,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: 'Số tiền'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              expense.removeTransaction(item.id);
+              Navigator.pop(context);
+            },
+            child: const Text('Xóa', style: TextStyle(color: Colors.red)),
+          ),
+          TextButton(
+            onPressed: () {
+              final updated = item.copyWith(
+                note: noteCtrl.text.trim(),
+                amount: double.tryParse(amountCtrl.text.trim()) ?? item.amount,
+              );
+              expense.updateTransaction(
+                item.id,
+                note: noteCtrl.text.trim(),
+                amount: double.tryParse(amountCtrl.text.trim()) ?? item.amount,
+              );
+              Navigator.pop(context);
+            },
+            child: const Text('Lưu'),
+          ),
+        ],
       ),
     );
   }
