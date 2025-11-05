@@ -14,6 +14,8 @@ dependencies:
   provider: ^6.1.2
   shared_preferences: ^2.3.2
   fl_chart: ^0.68.0
+  pdf: ^3.10.8
+  printing: ^5.13.4
   intl: ^0.20.2
   cupertino_icons: ^1.0.8
 
@@ -35,3 +37,4 @@ flutter:
     - assets/images/register.png
     - assets/images/profile_banner.png
     - assets/images/user_avatar.png
+    - assets/images/change_pwd.png

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../models/expense_model.dart';
 import '../l10n/l10n_ext.dart';
+import '../theme/color_utils.dart';
 
 class StatisticsCategoryList extends StatelessWidget {
   final ExpenseModel expense;
@@ -30,6 +32,7 @@ class StatisticsCategoryList extends StatelessWidget {
     final t = context.l10n;
     final fmt = _moneyFmt(context);
     final now = DateTime.now();
+    final model = context.watch<ExpenseModel>();
 
     final filtered = expense.transactions.where((ttr) {
       bool matchFilter = switch (filter) {
@@ -65,11 +68,10 @@ class StatisticsCategoryList extends StatelessWidget {
 
     final items = byCategory.entries
         .map((e) => _CategoryRow(
-              name: e.key,
-              amount: e.value,
-              percent: total == 0 ? 0.0 : e.value / total,
-              count: countByCategory[e.key] ?? 0,
-            ))
+            name: e.key,
+            amount: e.value,
+            percent: total == 0 ? 0.0 : e.value / total,
+            count: countByCategory[e.key] ?? 0))
         .toList()
       ..sort((a, b) => b.amount.compareTo(a.amount));
 
@@ -78,19 +80,14 @@ class StatisticsCategoryList extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Text(
-            selectedChartType == 'income'
-                ? t.noIncomeDataForFilter
-                : t.noExpenseDataForFilter,
-            style: const TextStyle(color: Colors.grey),
-            textAlign: TextAlign.center,
-          ),
+              selectedChartType == 'income'
+                  ? t.noIncomeDataForFilter
+                  : t.noExpenseDataForFilter,
+              style: const TextStyle(color: Colors.grey),
+              textAlign: TextAlign.center),
         ),
       );
     }
-
-    final barColor =
-        selectedChartType == 'income' ? Colors.green : Colors.redAccent;
-    final bg = barColor.withOpacity(0.12);
 
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
@@ -98,80 +95,71 @@ class StatisticsCategoryList extends StatelessWidget {
       separatorBuilder: (_, __) => const SizedBox(height: 8),
       itemBuilder: (context, i) {
         final it = items[i];
-        return Card(
-          elevation: 2,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  backgroundColor: bg,
-                  child: Icon(
-                    selectedChartType == 'income'
-                        ? Icons.south_west
-                        : Icons.north_east,
-                    color: barColor,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              it.name,
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.w600),
-                              overflow: TextOverflow.ellipsis,
+        final hex = model.colorHexOf(it.name);
+        final grad = gradientFromHex(hex);
+        final isIncome = selectedChartType == 'income';
+        return Container(
+          decoration: BoxDecoration(
+              gradient: grad, borderRadius: BorderRadius.circular(18)),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          child: Row(
+            children: [
+              CircleAvatar(
+                backgroundColor: colorFromHex(hex).withOpacity(.15),
+                child: Icon(isIncome ? Icons.south_west : Icons.north_east,
+                    color: amountColor(isIncome)),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                            child: Text(it.name,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w600),
+                                overflow: TextOverflow.ellipsis)),
+                        const SizedBox(width: 8),
+                        Text(fmt.format(it.amount),
+                            style:
+                                const TextStyle(fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(6),
+                            child: LinearProgressIndicator(
+                              value: it.percent.clamp(0.0, 1.0),
+                              minHeight: 8,
+                              backgroundColor:
+                                  colorFromHex(hex).withOpacity(.12),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                  colorFromHex(hex)),
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          Text(fmt.format(it.amount),
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.bold)),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(6),
-                              child: LinearProgressIndicator(
-                                value: it.percent.clamp(0.0, 1.0),
-                                minHeight: 8,
-                                backgroundColor: bg,
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(barColor),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          SizedBox(
+                        ),
+                        const SizedBox(width: 10),
+                        SizedBox(
                             width: 56,
                             child: Text(
-                              '${(it.percent * 100).toStringAsFixed(1)}%',
-                              textAlign: TextAlign.right,
-                              style: TextStyle(color: Colors.grey[700]),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${t.transactionsCount}: ${it.count}',
-                        style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                      ),
-                    ],
-                  ),
+                                '${(it.percent * 100).toStringAsFixed(1)}%',
+                                textAlign: TextAlign.right,
+                                style: TextStyle(color: Colors.grey[700]))),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text('${t.transactionsCount}: ${it.count}',
+                        style:
+                            TextStyle(color: Colors.grey[600], fontSize: 12)),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },

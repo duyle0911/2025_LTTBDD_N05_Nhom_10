@@ -21,6 +21,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _obscure1 = true;
   bool _obscure2 = true;
 
+  final Color _primary = const Color(0xFF00D2FF);
+  final Color _primaryDark = const Color(0xFF3A7BD5);
+  final Color _primarySoft = const Color.fromARGB(255, 9, 155, 72);
+  final Color _chip = const Color(0xFF90CAF9);
+
   @override
   void dispose() {
     _username.dispose();
@@ -63,7 +68,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final prefs = await SharedPreferences.getInstance();
     final username = _username.text.trim();
     final password = _password.text;
-
     final t = context.l10n;
 
     if (prefs.containsKey('user_$username')) {
@@ -95,173 +99,204 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
+  InputDecoration _inputDecoration(String label, IconData icon) {
+    return InputDecoration(
+      labelText: label,
+      prefixIcon: Icon(icon, color: _primaryDark),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: _chip),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: _primaryDark, width: 1.4),
+      ),
+      filled: true,
+      fillColor: Colors.white.withOpacity(.92),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final t = context.l10n;
 
     return Scaffold(
-      backgroundColor: theme.colorScheme.surface,
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 420),
-            child: Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(14),
-                        child: Image.asset(
-                          'assets/images/register.png',
-                          height: 120,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => const Icon(
-                            Icons.image_not_supported_outlined,
-                            size: 48,
-                            color: Colors.grey,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF3A7BD5), Color(0xFF00D2FF)],
+          ),
+        ),
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 440),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(.85),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(.08),
+                      blurRadius: 24,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                  border: Border.all(color: _primarySoft, width: 1),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(22, 26, 22, 20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(14),
+                          child: Image.asset(
+                            'assets/images/register.png',
+                            height: 120,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Icon(
+                              Icons.person_add_alt_1,
+                              size: 56,
+                              color: _primaryDark,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    Text(
-                      t.registerTitle,
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green,
+                      Text(
+                        t.registerTitle,
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          color: _primaryDark,
+                          letterSpacing: .2,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    Form(
-                      key: _formKey,
-                      child: Column(
-                        children: [
-                          TextFormField(
-                            controller: _username,
-                            textInputAction: TextInputAction.next,
-                            autofillHints: const [AutofillHints.newUsername],
-                            decoration: InputDecoration(
-                              labelText: t.username,
-                              prefixIcon: const Icon(Icons.person),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
+                      const SizedBox(height: 16),
+                      Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+                            TextFormField(
+                              controller: _username,
+                              textInputAction: TextInputAction.next,
+                              autofillHints: const [AutofillHints.newUsername],
+                              decoration:
+                                  _inputDecoration(t.username, Icons.person),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.deny(RegExp(r'\s')),
+                              ],
+                              validator: _validateUsername,
                             ),
-                            inputFormatters: [
-                              FilteringTextInputFormatter.deny(RegExp(r'\s')),
-                            ],
-                            validator: _validateUsername,
-                          ),
-                          const SizedBox(height: 14),
-                          TextFormField(
-                            controller: _password,
-                            obscureText: _obscure1,
-                            textInputAction: TextInputAction.next,
-                            autofillHints: const [AutofillHints.newPassword],
-                            decoration: InputDecoration(
-                              labelText: t.password,
-                              prefixIcon: const Icon(Icons.lock),
-                              suffixIcon: IconButton(
-                                onPressed: () =>
-                                    setState(() => _obscure1 = !_obscure1),
-                                icon: Icon(
-                                  _obscure1
-                                      ? Icons.visibility
-                                      : Icons.visibility_off,
-                                ),
-                                tooltip:
-                                    _obscure1 ? t.showPassword : t.hidePassword,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            validator: _validatePassword,
-                          ),
-                          const SizedBox(height: 14),
-                          TextFormField(
-                            controller: _confirm,
-                            obscureText: _obscure2,
-                            textInputAction: TextInputAction.done,
-                            decoration: InputDecoration(
-                              labelText: t.confirmPassword,
-                              prefixIcon: const Icon(Icons.lock_outline),
-                              suffixIcon: IconButton(
-                                onPressed: () =>
-                                    setState(() => _obscure2 = !_obscure2),
-                                icon: Icon(
-                                  _obscure2
-                                      ? Icons.visibility
-                                      : Icons.visibility_off,
-                                ),
-                                tooltip:
-                                    _obscure2 ? t.showPassword : t.hidePassword,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            validator: _validateConfirm,
-                            onFieldSubmitted: (_) {
-                              if (!_isLoading) _register();
-                            },
-                          ),
-                          const SizedBox(height: 20),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: _isLoading ? null : _register,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green,
-                                foregroundColor: Colors.white,
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 14),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                            const SizedBox(height: 14),
+                            TextFormField(
+                              controller: _password,
+                              obscureText: _obscure1,
+                              textInputAction: TextInputAction.next,
+                              autofillHints: const [AutofillHints.newPassword],
+                              decoration:
+                                  _inputDecoration(t.password, Icons.lock)
+                                      .copyWith(
+                                suffixIcon: IconButton(
+                                  onPressed: () =>
+                                      setState(() => _obscure1 = !_obscure1),
+                                  icon: Icon(
+                                    _obscure1
+                                        ? Icons.visibility
+                                        : Icons.visibility_off,
+                                    color: _primaryDark,
+                                  ),
+                                  tooltip: _obscure1
+                                      ? t.showPassword
+                                      : t.hidePassword,
                                 ),
                               ),
-                              child: _isLoading
-                                  ? const SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Colors.white,
+                              validator: _validatePassword,
+                            ),
+                            const SizedBox(height: 14),
+                            TextFormField(
+                              controller: _confirm,
+                              obscureText: _obscure2,
+                              textInputAction: TextInputAction.done,
+                              decoration: _inputDecoration(
+                                      t.confirmPassword, Icons.lock_outline)
+                                  .copyWith(
+                                suffixIcon: IconButton(
+                                  onPressed: () =>
+                                      setState(() => _obscure2 = !_obscure2),
+                                  icon: Icon(
+                                    _obscure2
+                                        ? Icons.visibility
+                                        : Icons.visibility_off,
+                                    color: _primaryDark,
+                                  ),
+                                  tooltip: _obscure2
+                                      ? t.showPassword
+                                      : t.hidePassword,
+                                ),
+                              ),
+                              validator: _validateConfirm,
+                              onFieldSubmitted: (_) {
+                                if (!_isLoading) _register();
+                              },
+                            ),
+                            const SizedBox(height: 20),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: _isLoading ? null : _register,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: _primaryDark,
+                                  foregroundColor: Colors.white,
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 14),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                  elevation: 0,
+                                ),
+                                child: _isLoading
+                                    ? const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                    : Text(
+                                        t.registerButton,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
-                                    )
-                                  : Text(
-                                      t.registerButton,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(t.haveAccount),
-                              TextButton(
-                                onPressed: _isLoading ? null : _goLogin,
-                                child: Text(t.loginButton),
                               ),
-                            ],
-                          ),
-                        ],
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(t.haveAccount,
+                                    style: TextStyle(color: _primaryDark)),
+                                TextButton(
+                                  onPressed: _isLoading ? null : _goLogin,
+                                  style: TextButton.styleFrom(
+                                      foregroundColor: _primary),
+                                  child: Text(t.loginButton),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

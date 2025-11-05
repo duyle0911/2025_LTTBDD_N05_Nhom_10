@@ -21,6 +21,11 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscure = true;
   bool _rememberMe = true;
 
+  final Color _primary = const Color(0xFF00D2FF);
+  final Color _primaryDark = const Color.fromARGB(255, 4, 134, 141);
+  final Color _primarySoft = const Color.fromARGB(255, 12, 216, 148);
+  final Color _chip = const Color.fromARGB(255, 12, 235, 220);
+
   @override
   void initState() {
     super.initState();
@@ -42,14 +47,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
-
     final t = context.l10n;
     final username = _username.text.trim();
     final password = _password.text.trim();
 
     setState(() => _isLoading = true);
     final prefs = await SharedPreferences.getInstance();
-
     final savedPassword = prefs.getString('user_$username');
     await Future.delayed(const Duration(milliseconds: 300));
 
@@ -71,7 +74,6 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     if (!mounted) return;
-
     Navigator.pushReplacementNamed(context, '/');
   }
 
@@ -118,6 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
+      backgroundColor: Colors.white,
       builder: (ctx) {
         final inset = MediaQuery.of(ctx).viewInsets.bottom;
         return Padding(
@@ -131,6 +134,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   t.forgotPasswordQ,
                   style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
+                        color: _primaryDark,
                       ),
                 ),
                 const SizedBox(height: 12),
@@ -138,9 +142,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   controller: usernameCtrl,
                   decoration: InputDecoration(
                     labelText: t.username,
-                    prefixIcon: const Icon(Icons.person),
-                    border: OutlineInputBorder(
+                    prefixIcon: Icon(Icons.person, color: _primaryDark),
+                    enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: _chip),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: _primaryDark, width: 1.4),
                     ),
                   ),
                   inputFormatters: [
@@ -154,9 +163,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   controller: newPassCtrl,
                   decoration: InputDecoration(
                     labelText: t.newPassword,
-                    prefixIcon: const Icon(Icons.lock_reset),
-                    border: OutlineInputBorder(
+                    prefixIcon: Icon(Icons.lock_reset, color: _primaryDark),
+                    enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: _chip),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: _primaryDark, width: 1.4),
                     ),
                   ),
                   obscureText: true,
@@ -168,9 +182,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   controller: confirmCtrl,
                   decoration: InputDecoration(
                     labelText: t.confirmPassword,
-                    prefixIcon: const Icon(Icons.lock_outline),
-                    border: OutlineInputBorder(
+                    prefixIcon: Icon(Icons.lock_outline, color: _primaryDark),
+                    enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: _chip),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: _primaryDark, width: 1.4),
                     ),
                   ),
                   obscureText: true,
@@ -182,6 +201,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     Expanded(
                       child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: _primaryDark,
+                          side: BorderSide(color: _primaryDark),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
                         onPressed: () => Navigator.of(ctx).pop(false),
                         child: Text(t.cancel),
                       ),
@@ -189,6 +215,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _primaryDark,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
                         onPressed: () {
                           if (formKey.currentState!.validate()) {
                             Navigator.of(ctx).pop(true);
@@ -232,163 +265,205 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  InputDecoration _inputDecoration(
+      BuildContext context, String label, IconData icon) {
+    return InputDecoration(
+      labelText: label,
+      prefixIcon: Icon(icon, color: _primaryDark),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: _chip),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: _primaryDark, width: 1.4),
+      ),
+      filled: true,
+      fillColor: Colors.white.withOpacity(.92),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final t = context.l10n;
 
     return Scaffold(
-      backgroundColor: theme.colorScheme.surface,
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 420),
-            child: Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: Image.asset(
-                        'assets/images/logo.png',
-                        height: 72,
-                        errorBuilder: (_, __, ___) => const Icon(
-                          Icons.account_circle,
-                          size: 72,
-                          color: Colors.blueAccent,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      t.loginTitle,
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.primary,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Form(
-                      key: _formKey,
-                      child: Column(
-                        children: [
-                          TextFormField(
-                            controller: _username,
-                            textInputAction: TextInputAction.next,
-                            autofillHints: const [AutofillHints.username],
-                            decoration: InputDecoration(
-                              labelText: t.username,
-                              prefixIcon: const Icon(Icons.person),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            inputFormatters: [
-                              FilteringTextInputFormatter.deny(RegExp(r'\s')),
-                            ],
-                            validator: (v) => (v == null || v.trim().isEmpty)
-                                ? t.pleaseEnterUsername
-                                : null,
-                          ),
-                          const SizedBox(height: 14),
-                          TextFormField(
-                            controller: _password,
-                            obscureText: _obscure,
-                            textInputAction: TextInputAction.done,
-                            autofillHints: const [AutofillHints.password],
-                            decoration: InputDecoration(
-                              labelText: t.password,
-                              prefixIcon: const Icon(Icons.lock),
-                              suffixIcon: IconButton(
-                                onPressed: () =>
-                                    setState(() => _obscure = !_obscure),
-                                icon: Icon(
-                                  _obscure
-                                      ? Icons.visibility
-                                      : Icons.visibility_off,
-                                ),
-                                tooltip:
-                                    _obscure ? t.showPassword : t.hidePassword,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            validator: (v) => (v == null || v.isEmpty)
-                                ? t.pleaseEnterPassword
-                                : null,
-                            onFieldSubmitted: (_) {
-                              if (!_isLoading) _login();
-                            },
-                          ),
-                          const SizedBox(height: 6),
-                          Row(
-                            children: [
-                              Checkbox(
-                                value: _rememberMe,
-                                onChanged: (v) =>
-                                    setState(() => _rememberMe = v ?? true),
-                              ),
-                              Text(t.rememberMe),
-                              const Spacer(),
-                              TextButton(
-                                onPressed: _forgotPassword,
-                                child: Text(t.forgotPasswordQ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: _isLoading ? null : _login,
-                              style: ElevatedButton.styleFrom(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 14),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                backgroundColor: Colors.blueAccent,
-                                foregroundColor: Colors.white,
-                              ),
-                              child: _isLoading
-                                  ? const SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Colors.white,
-                                      ),
-                                    )
-                                  : Text(
-                                      t.loginButton,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(t.noAccount),
-                              TextButton(
-                                onPressed: _goRegister,
-                                child: Text(t.registerNow),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF3A7BD5), Color(0xFF00D2FF)],
+          ),
+        ),
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 440),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(.85),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(.08),
+                      blurRadius: 24,
+                      offset: const Offset(0, 10),
                     ),
                   ],
+                  border: Border.all(color: _primarySoft, width: 1),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(22, 26, 22, 20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: CircleAvatar(
+                          radius: 40,
+                          backgroundColor: _primarySoft.withOpacity(.35),
+                          child: Image.asset(
+                            'assets/images/logo.png',
+                            height: 56,
+                            errorBuilder: (_, __, ___) => Icon(
+                              Icons.account_circle,
+                              size: 56,
+                              color: _primaryDark,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Text(
+                        t.loginTitle,
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          color: _primaryDark,
+                          letterSpacing: .2,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+                            TextFormField(
+                              controller: _username,
+                              textInputAction: TextInputAction.next,
+                              autofillHints: const [AutofillHints.username],
+                              decoration: _inputDecoration(
+                                  context, t.username, Icons.person),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.deny(RegExp(r'\s')),
+                              ],
+                              validator: (v) => (v == null || v.trim().isEmpty)
+                                  ? t.pleaseEnterUsername
+                                  : null,
+                            ),
+                            const SizedBox(height: 14),
+                            TextFormField(
+                              controller: _password,
+                              obscureText: _obscure,
+                              textInputAction: TextInputAction.done,
+                              autofillHints: const [AutofillHints.password],
+                              decoration: _inputDecoration(
+                                      context, t.password, Icons.lock)
+                                  .copyWith(
+                                suffixIcon: IconButton(
+                                  onPressed: () =>
+                                      setState(() => _obscure = !_obscure),
+                                  icon: Icon(
+                                    _obscure
+                                        ? Icons.visibility
+                                        : Icons.visibility_off,
+                                    color: _primaryDark,
+                                  ),
+                                  tooltip: _obscure
+                                      ? t.showPassword
+                                      : t.hidePassword,
+                                ),
+                              ),
+                              validator: (v) => (v == null || v.isEmpty)
+                                  ? t.pleaseEnterPassword
+                                  : null,
+                              onFieldSubmitted: (_) {
+                                if (!_isLoading) _login();
+                              },
+                            ),
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                Checkbox(
+                                  value: _rememberMe,
+                                  onChanged: (v) =>
+                                      setState(() => _rememberMe = v ?? true),
+                                  activeColor: _primaryDark,
+                                  checkColor: Colors.white,
+                                  side: BorderSide(color: _chip),
+                                ),
+                                Text('Ghi nhớ',
+                                    style: TextStyle(color: _primaryDark)),
+                                const Spacer(),
+                                TextButton(
+                                  onPressed: _forgotPassword,
+                                  style: TextButton.styleFrom(
+                                      foregroundColor: _primaryDark),
+                                  child: Text(t.forgotPasswordQ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: _isLoading ? null : _login,
+                                style: ElevatedButton.styleFrom(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 14),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                  backgroundColor: _primaryDark,
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                ),
+                                child: _isLoading
+                                    ? const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                    : const Text(
+                                        'Đăng nhập',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text('Chưa có tài khoản?',
+                                    style: TextStyle(color: _primaryDark)),
+                                TextButton(
+                                  onPressed: _goRegister,
+                                  style: TextButton.styleFrom(
+                                      foregroundColor: _primary),
+                                  child: const Text('Đăng ký ngay'),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

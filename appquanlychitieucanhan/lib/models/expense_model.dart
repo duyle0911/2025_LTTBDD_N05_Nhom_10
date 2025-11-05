@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 
 class TransactionItem {
   final String id;
-  final String type;
+  final String type; // 'income' | 'expense'
   final double amount;
   final String note;
   final String category;
@@ -39,12 +39,23 @@ class TransactionItem {
 class ExpenseModel extends ChangeNotifier {
   final List<TransactionItem> _transactions = [];
 
+  // ---------- Helpers ----------
+  bool _isIncome(String t) => t.toLowerCase() == 'income';
+  bool _isExpense(String t) => t.toLowerCase() == 'expense';
+
+  double _clampAmount(double v) => (v.isNaN || v.isInfinite || v < 0) ? 0.0 : v;
+
+  void _sortByDateDesc() {
+    _transactions.sort((a, b) => b.date.compareTo(a.date)); // mới -> cũ
+  }
+
+  // ---------- Getters ----------
   double get income => _transactions
-      .where((t) => t.type == 'income')
+      .where((t) => _isIncome(t.type))
       .fold(0, (s, t) => s + t.amount);
 
   double get expense => _transactions
-      .where((t) => t.type == 'expense')
+      .where((t) => _isExpense(t.type))
       .fold(0, (s, t) => s + t.amount);
 
   double get balance => income - expense;
@@ -62,6 +73,26 @@ class ExpenseModel extends ChangeNotifier {
   List<String> get incomeCategories => List.unmodifiable(_incomeCategories);
   List<String> get expenseCategories => List.unmodifiable(_expenseCategories);
 
+  final Map<String, String> _categoryColors = {
+    'Ăn uống': '#E91E63',
+    'Đi lại': '#9C27B0',
+    'Hóa đơn': '#7C4DFF',
+    'Mua sắm': '#3F51B5',
+    'Lương': '#2E7D32',
+    'Thưởng': '#00BCD4',
+    'Khác': '#607D8B',
+  };
+
+  String colorHexOf(String categoryName) {
+    return _categoryColors[categoryName] ?? '#607D8B';
+  }
+
+  void setCategoryColor(String category, String hex) {
+    _categoryColors[category] = hex;
+    notifyListeners();
+  }
+
+  // ---------- Category management ----------
   void addIncomeCategory(String name) {
     if (!_incomeCategories.contains(name)) {
       _incomeCategories.add(name);
@@ -76,16 +107,18 @@ class ExpenseModel extends ChangeNotifier {
     }
   }
 
+  // ---------- CRUD Transactions ----------
   void addIncome(double amount, String note, String category,
       {DateTime? date}) {
     _transactions.add(TransactionItem(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       type: 'income',
-      amount: amount,
-      note: note,
+      amount: _clampAmount(amount),
+      note: note.trim(),
       category: category,
       date: date ?? DateTime.now(),
     ));
+    _sortByDateDesc();
     notifyListeners();
   }
 
@@ -94,34 +127,35 @@ class ExpenseModel extends ChangeNotifier {
     _transactions.add(TransactionItem(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       type: 'expense',
-      amount: amount,
-      note: note,
+      amount: _clampAmount(amount),
+      note: note.trim(),
       category: category,
       date: date ?? DateTime.now(),
     ));
+    _sortByDateDesc();
     notifyListeners();
   }
 
   void addTransaction({
-    required String type,
+    required String type, // 'income' | 'expense'
     required double amount,
     required String note,
     required String category,
     DateTime? date,
   }) {
-    if (type == 'income') {
-      addIncome(amount, note, category, date: date);
+    final amt = _clampAmount(amount);
+    final n = note.trim();
+    if (_isIncome(type)) {
+      addIncome(amt, n, category, date: date);
     } else {
-      addExpense(amount, note, category, date: date);
+      addExpense(amt, n, category, date: date);
     }
   }
-
 
   void removeTransaction(String id) {
     _transactions.removeWhere((t) => t.id == id);
     notifyListeners();
   }
-
 
   void updateTransaction(
     String id, {
@@ -133,24 +167,37 @@ class ExpenseModel extends ChangeNotifier {
   }) {
     final index = _transactions.indexWhere((t) => t.id == id);
     if (index == -1) return;
-
     final current = _transactions[index];
     _transactions[index] = current.copyWith(
       type: type,
-      amount: amount,
-      note: note,
+      amount: amount != null ? _clampAmount(amount) : null,
+      note: note?.trim(),
       category: category,
       date: date,
     );
-
+    _sortByDateDesc();
     notifyListeners();
   }
 
+  // ---------- Aggregations ----------
   double totalAmount({required String type, String? category}) {
     return _transactions.where((t) {
-      final matchType = t.type == type;
+      final matchType =
+          _isIncome(type) ? _isIncome(t.type) : _isExpense(t.type);
       final matchCategory = category == null || t.category == category;
       return matchType && matchCategory;
     }).fold(0, (sum, t) => sum + t.amount);
+  }
+
+  /// Tổng theo ngày cho loại 'income' hoặc 'expense'
+  Map<DateTime, double> sumByDay(String type) {
+    final out = <DateTime, double>{};
+    final isInc = _isIncome(type);
+    for (final t in _transactions
+        .where((t) => isInc ? _isIncome(t.type) : _isExpense(t.type))) {
+      final d = DateTime(t.date.year, t.date.month, t.date.day);
+      out[d] = (out[d] ?? 0) + t.amount;
+    }
+    return out;
   }
 }
