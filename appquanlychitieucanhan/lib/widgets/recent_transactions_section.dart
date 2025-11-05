@@ -34,120 +34,154 @@ class RecentTransactionsSection extends StatelessWidget {
         .take(5)
         .toList();
 
-    if (recent.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.all(16),
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.blueGrey.withOpacity(0.05),
-            borderRadius: BorderRadius.circular(14),
+    return Padding(
+      padding: const EdgeInsets.all(20), 
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF3A7BD5), Color(0xFF00D2FF)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.receipt_long,
-                  color: Colors.blueGrey.withOpacity(0.6), size: 40),
-              const SizedBox(height: 8),
-              Text(
-                t.noTransactionsYet,
-                style: const TextStyle(
-                    fontWeight: FontWeight.w600, color: Colors.black54),
-                textAlign: TextAlign.center,
-              ),
+              if (recent.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.blueGrey.withOpacity(0.05),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Column(
+                      children: [
+                        Icon(Icons.receipt_long,
+                            color: Colors.blueGrey.withOpacity(0.6), size: 40),
+                        const SizedBox(height: 8),
+                        Text(
+                          t.noTransactionsYet,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white70,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              else ...[
+                // Header Row
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 12),
+                  child: Row(
+                    children: [
+                      Text(
+                        t.recentTransactions,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white, // chữ màu trắng
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.white24,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          '${recent.length}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      const Spacer(),
+                      TextButton(
+                        onPressed: () =>
+                            Navigator.pushNamed(context, '/transactions'),
+                        child: Text(
+                          t.viewAll,
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // List recent transactions
+                ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                  itemCount: recent.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 8),
+                  itemBuilder: (_, i) {
+                    final tr = recent[i];
+                    final isIncome = tr.type == 'income';
+                    final color = isIncome ? Colors.green : Colors.redAccent;
+                    final sign = isIncome ? '+' : '-';
+
+                    return Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        side: const BorderSide(
+                            color: Colors.white24, width: 1),
+                      ),
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: color.withOpacity(0.12),
+                          child: Icon(
+                            isIncome ? Icons.south_west : Icons.north_east,
+                            color: color,
+                          ),
+                        ),
+                        title: Text(
+                          tr.note.isNotEmpty ? tr.note : tr.category,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        subtitle: Text(
+                          _friendlyDate(context, tr.date),
+                          style: const TextStyle(color: Colors.grey),
+                        ),
+                        trailing: Text(
+                          '$sign ${fmt.format(tr.amount)}',
+                          style: TextStyle(
+                            color: color,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        onTap: () async {
+                          final text = '$sign ${fmt.format(tr.amount)}';
+                          await Clipboard.setData(ClipboardData(text: text));
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(t.copiedBalance(text))),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ]
             ],
           ),
         ),
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              Text(
-                t.recentTransactions,
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  '${recent.length}',
-                  style: const TextStyle(
-                      color: Colors.blue, fontWeight: FontWeight.w600),
-                ),
-              ),
-              const Spacer(),
-              TextButton(
-                onPressed: () => Navigator.pushNamed(context, '/transactions'),
-                child: Text(t.viewAll),
-              ),
-            ],
-          ),
-        ),
-        ListView.separated(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-          itemCount: recent.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 8),
-          itemBuilder: (_, i) {
-            final tr = recent[i];
-            final isIncome = tr.type == 'income';
-            final color = isIncome ? Colors.green : Colors.redAccent;
-            final sign = isIncome ? '+' : '-';
-
-            return Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: color.withOpacity(0.12),
-                  child: Icon(
-                    isIncome ? Icons.south_west : Icons.north_east,
-                    color: color,
-                  ),
-                ),
-                title: Text(
-                  tr.note.isNotEmpty ? tr.note : tr.category,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-                subtitle: Text(
-                  _friendlyDate(context, tr.date),
-                  style: const TextStyle(color: Colors.grey),
-                ),
-                trailing: Text(
-                  '$sign ${fmt.format(tr.amount)}',
-                  style: TextStyle(
-                    color: color,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-                onTap: () async {
-                  final text = '$sign ${fmt.format(tr.amount)}';
-                  await Clipboard.setData(ClipboardData(text: text));
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(t.copiedBalance(text))),
-                  );
-                },
-              ),
-            );
-          },
-        ),
-      ],
+      ),
     );
   }
 }
