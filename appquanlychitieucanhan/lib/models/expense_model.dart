@@ -16,6 +16,24 @@ class TransactionItem {
     required this.category,
     required this.date,
   });
+
+  TransactionItem copyWith({
+    String? id,
+    String? type,
+    double? amount,
+    String? note,
+    String? category,
+    DateTime? date,
+  }) {
+    return TransactionItem(
+      id: id ?? this.id,
+      type: type ?? this.type,
+      amount: amount ?? this.amount,
+      note: note ?? this.note,
+      category: category ?? this.category,
+      date: date ?? this.date,
+    );
+  }
 }
 
 class ExpenseModel extends ChangeNotifier {
@@ -96,6 +114,36 @@ class ExpenseModel extends ChangeNotifier {
     } else {
       addExpense(amount, note, category, date: date);
     }
+  }
+
+
+  void removeTransaction(String id) {
+    _transactions.removeWhere((t) => t.id == id);
+    notifyListeners();
+  }
+
+
+  void updateTransaction(
+    String id, {
+    String? type,
+    double? amount,
+    String? note,
+    String? category,
+    DateTime? date,
+  }) {
+    final index = _transactions.indexWhere((t) => t.id == id);
+    if (index == -1) return;
+
+    final current = _transactions[index];
+    _transactions[index] = current.copyWith(
+      type: type,
+      amount: amount,
+      note: note,
+      category: category,
+      date: date,
+    );
+
+    notifyListeners();
   }
 
   double totalAmount({required String type, String? category}) {
