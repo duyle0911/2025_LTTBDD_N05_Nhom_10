@@ -1,4 +1,3 @@
-// lib/screens/home_screen.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -186,7 +185,7 @@ class HomeScreen extends StatelessWidget {
                           icon: const Icon(Icons.north_east),
                           label: Text(t.addExpenseTitle),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFE91E63), // đỏ hồng
+                            backgroundColor: const Color(0xFFE91E63),
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
@@ -225,8 +224,8 @@ class HomeScreen extends StatelessWidget {
         onPressed: () =>
             _ensureWalletThen(context, () => _openQuickAddSheet(context)),
         icon: const Icon(Icons.add),
-        label: const Text(' Thêm giao dịch'),
-        backgroundColor: const Color(0xFFE91E63), // đỏ hồng
+        label: Text(t.addTransactionCta),
+        backgroundColor: const Color(0xFFE91E63),
         foregroundColor: Colors.white,
       ),
       body: ListView(
@@ -267,7 +266,7 @@ class HomeScreen extends StatelessWidget {
                     label: Text(t.addExpenseUpper),
                     style: FilledButton.styleFrom(
                       foregroundColor: Colors.white,
-                      backgroundColor: const Color(0xFFE91E63), // đỏ hồng
+                      backgroundColor: const Color(0xFFE91E63),
                     ),
                   ),
                 ),

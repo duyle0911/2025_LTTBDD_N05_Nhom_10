@@ -1435,6 +1435,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose this wallet'**
   String get chooseThisWallet;
+
+  /// No description provided for @addTransactionCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Add transaction'**
+  String get addTransactionCta;
 }
 
 class _AppLocalizationsDelegate

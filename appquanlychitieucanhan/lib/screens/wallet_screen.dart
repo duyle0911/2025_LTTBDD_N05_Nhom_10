@@ -17,7 +17,34 @@ class _WalletScreenState extends State<WalletScreen> {
   Color get _purple => const Color.fromARGB(255, 71, 240, 130);
   Color get _red => const Color.fromARGB(255, 7, 143, 227);
 
-  final _types = const ['cash', 'bank', 'credit', 'savings'];
+  // chuẩn code cho loại ví
+  final List<String> _types = const ['cash', 'bank', 'credit', 'savings'];
+
+  // --- Helpers: map VN/EN label -> code; đảm bảo value hợp lệ ---
+  String _toCode(String raw) {
+    final s = raw.trim().toLowerCase();
+    switch (s) {
+      // code đã đúng
+      case 'cash':
+      case 'bank':
+      case 'credit':
+      case 'savings':
+        return s;
+      // tiếng Việt cũ
+      case 'tiền mặt':
+        return 'cash';
+      case 'ngân hàng':
+        return 'bank';
+      case 'thẻ tín dụng':
+        return 'credit';
+      case 'tiết kiệm':
+        return 'savings';
+      default:
+        return 'savings';
+    }
+  }
+
+  String _ensureInTypes(String v) => _types.contains(v) ? v : _types.first;
 
   NumberFormat _fmtVND() {
     final lc = Localizations.localeOf(context).languageCode;
@@ -42,9 +69,9 @@ class _WalletScreenState extends State<WalletScreen> {
         base.withOpacity(.78),
       ];
 
-  String _typeLabel(String code) {
+  String _typeLabel(String codeOrLegacy) {
     final t = context.l10n;
-    switch (code) {
+    switch (_toCode(codeOrLegacy)) {
       case 'cash':
         return t.walletTypeCash;
       case 'bank':
@@ -52,14 +79,13 @@ class _WalletScreenState extends State<WalletScreen> {
       case 'credit':
         return t.walletTypeCredit;
       case 'savings':
-        return t.walletTypeSavings;
       default:
-        return code;
+        return t.walletTypeSavings;
     }
   }
 
-  IconData _iconForType(String code) {
-    switch (code) {
+  IconData _iconForType(String codeOrLegacy) {
+    switch (_toCode(codeOrLegacy)) {
       case 'cash':
         return Icons.account_balance_wallet;
       case 'bank':
@@ -67,17 +93,24 @@ class _WalletScreenState extends State<WalletScreen> {
       case 'credit':
         return Icons.credit_card;
       case 'savings':
-        return Icons.savings;
       default:
-        return Icons.account_balance_wallet;
+        return Icons.savings;
     }
   }
 
+  // ============== All / cụ thể ví ở header ==============
+  String _headerSelection = 'all'; // 'all' | walletId
+
+  // ================== Modal tạo/sửa ví ===================
   Future<void> _showWalletForm(BuildContext context, {WalletItem? edit}) async {
     final t = context.l10n;
     final wm = context.read<WalletModel>();
+
     final name = TextEditingController(text: edit?.name ?? '');
-    String type = edit?.type ?? _types.first;
+
+    // Chuẩn hoá type về CODE và đảm bảo có trong danh sách
+    String type = _ensureInTypes(_toCode(edit?.type ?? _types.first));
+
     final balance = TextEditingController(
       text: edit != null
           ? _fmtVND().format(edit.balance).replaceAll(RegExp(r'[^\d,.]'), '')
@@ -124,14 +157,15 @@ class _WalletScreenState extends State<WalletScreen> {
                 ),
                 const SizedBox(height: 10),
                 DropdownButtonFormField<String>(
-                  value: type,
+                  value: type, // luôn là code hợp lệ
                   items: _types
                       .map((e) => DropdownMenuItem(
                             value: e,
                             child: Text(_typeLabel(e)),
                           ))
                       .toList(),
-                  onChanged: (v) => setState(() => type = v ?? _types.first),
+                  onChanged: (v) =>
+                      setState(() => type = _ensureInTypes(v ?? type)),
                   decoration: InputDecoration(
                     labelText: t.fieldWalletType,
                     prefixIcon: const Icon(Icons.category_outlined),
@@ -172,7 +206,7 @@ class _WalletScreenState extends State<WalletScreen> {
                       if (edit == null) {
                         final id = wm.addWallet(
                           name: name.text,
-                          type: type,
+                          type: type, // lưu CODE
                           initialBalance: raw,
                         );
                         wm.select(id);
@@ -180,7 +214,7 @@ class _WalletScreenState extends State<WalletScreen> {
                         wm.updateWallet(
                           edit.id,
                           name: name.text,
-                          type: type,
+                          type: type, // update về CODE
                           balance: raw,
                         );
                         wm.select(edit.id);
@@ -253,7 +287,7 @@ class _WalletScreenState extends State<WalletScreen> {
     final wm = context.read<WalletModel>();
     final id = wm.addWallet(
       name: name,
-      type: _newType,
+      type: _ensureInTypes(_newType),
       initialBalance: initBal,
     );
     wm.select(id);
@@ -263,11 +297,58 @@ class _WalletScreenState extends State<WalletScreen> {
     );
   }
 
+  Future<void> _openWalletChooser(BuildContext context) async {
+    final t = context.l10n;
+    final wm = context.read<WalletModel>();
+    await showModalBottomSheet(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.dashboard_customize_outlined),
+              title: Text(t.allWallets),
+              onTap: () {
+                setState(() => _headerSelection = 'all');
+                Navigator.pop(ctx);
+              },
+            ),
+            const Divider(height: 1),
+            ...wm.wallets.map(
+              (w) => ListTile(
+                leading: const Icon(Icons.account_balance_wallet_outlined),
+                title: Text(w.name),
+                subtitle:
+                    Text(_typeLabel(w.type)), // w.type có thể là VN -> map
+                trailing: Text(_fmtVND().format(w.balance)),
+                onTap: () {
+                  setState(() => _headerSelection = w.id);
+                  wm.select(w.id);
+                  Navigator.pop(ctx);
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = context.l10n;
     final wm = context.watch<WalletModel>();
     final fmt = _fmtVND();
+
+    final double headerBalance = _headerSelection == 'all'
+        ? wm.wallets.fold<double>(0, (s, w) => s + (w.balance))
+        : (wm.byId(_headerSelection)?.balance ?? 0.0);
+
+    final String headerLabel = _headerSelection == 'all'
+        ? t.allWallets
+        : (wm.byId(_headerSelection)?.name ?? t.allWallets);
 
     return Container(
       decoration: BoxDecoration(
@@ -297,48 +378,78 @@ class _WalletScreenState extends State<WalletScreen> {
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
             child: Column(
               children: [
+                // Header tổng + chọn All/1 ví
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(.95),
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: Row(
+                  child: Column(
                     children: [
-                      const Icon(Icons.account_balance, color: Colors.black54),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          t.totalWallets(wm.wallets.length),
-                          style: const TextStyle(fontWeight: FontWeight.w600),
-                        ),
+                      Row(
+                        children: [
+                          const Icon(Icons.account_balance,
+                              color: Colors.black54),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              t.totalWallets(wm.wallets.length),
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                          OutlinedButton.icon(
+                            onPressed: () => _openWalletChooser(context),
+                            icon: const Icon(Icons.arrow_drop_down),
+                            label: Text(headerLabel),
+                          ),
+                        ],
                       ),
-                      if (wm.selectedWalletId != null)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(.06),
-                            borderRadius: BorderRadius.circular(999),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          const Icon(Icons.account_balance_wallet_outlined,
+                              size: 18, color: Colors.black54),
+                          const SizedBox(width: 6),
+                          Text(
+                            '${t.balance}: ${fmt.format(headerBalance)}',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.check_circle,
-                                  size: 16, color: Colors.green),
-                              const SizedBox(width: 6),
-                              Text(t.selected),
-                            ],
-                          ),
-                        ),
+                          const Spacer(),
+                          if (_headerSelection != 'all')
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(.06),
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.check_circle,
+                                      size: 16, color: Colors.green),
+                                  const SizedBox(width: 6),
+                                  Text(t.selected),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
+
                 const SizedBox(height: 12),
                 for (int i = 0; i < wm.wallets.length; i++) ...[
                   _buildWalletItem(wm.wallets[i], fmt),
                   const SizedBox(height: 10),
                 ],
+
                 const SizedBox(height: 4),
+                // Form tạo ví inline
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.fromLTRB(14, 12, 14, 16),
@@ -391,13 +502,13 @@ class _WalletScreenState extends State<WalletScreen> {
                       ),
                       const SizedBox(height: 10),
                       DropdownButtonFormField<String>(
-                        value: _newType,
+                        value: _ensureInTypes(_newType),
                         items: _types
                             .map((e) => DropdownMenuItem(
                                 value: e, child: Text(_typeLabel(e))))
                             .toList(),
-                        onChanged: (v) =>
-                            setState(() => _newType = v ?? _newType),
+                        onChanged: (v) => setState(
+                            () => _newType = _ensureInTypes(v ?? _newType)),
                         decoration: InputDecoration(
                           labelText: t.fieldWalletTypeAccount,
                           prefixIcon: const Icon(Icons.category_outlined),
@@ -474,8 +585,13 @@ class _WalletScreenState extends State<WalletScreen> {
     final primary = _fromHex(w.colorHex);
     final onCard = _onColor(primary);
 
+    final code = _toCode(w.type); // chuẩn hoá hiển thị cho ví cũ
+
     return InkWell(
-      onTap: () => wm.select(w.id),
+      onTap: () {
+        wm.select(w.id);
+        setState(() => _headerSelection = w.id);
+      },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
         curve: Curves.easeOut,
@@ -495,7 +611,7 @@ class _WalletScreenState extends State<WalletScreen> {
           contentPadding: const EdgeInsets.fromLTRB(14, 10, 8, 10),
           leading: CircleAvatar(
             backgroundColor: Colors.white.withOpacity(.18),
-            child: Icon(_iconForType(w.type), color: Colors.white),
+            child: Icon(_iconForType(code), color: Colors.white),
           ),
           title: Text(
             w.name,
@@ -505,7 +621,7 @@ class _WalletScreenState extends State<WalletScreen> {
             ),
           ),
           subtitle: Text(
-            '${_typeLabel(w.type)} • VND',
+            '${_typeLabel(code)} • VND',
             style: TextStyle(color: onCard.withOpacity(.85)),
           ),
           trailing: Row(
@@ -524,6 +640,7 @@ class _WalletScreenState extends State<WalletScreen> {
                 onSelected: (value) {
                   if (value == 'select') {
                     wm.select(w.id);
+                    setState(() => _headerSelection = w.id);
                   } else if (value == 'edit') {
                     _showWalletForm(context, edit: w);
                   } else if (value == 'delete') {

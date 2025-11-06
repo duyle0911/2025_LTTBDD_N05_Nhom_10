@@ -701,4 +701,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chooseThisWallet => 'Choose this wallet';
+
+  @override
+  String get addTransactionCta => 'Add transaction';
 }

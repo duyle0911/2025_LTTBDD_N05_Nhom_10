@@ -271,5 +271,6 @@
   "createWalletCta": "Tạo ví",
   "createdWallet": "Đã tạo ví mới ({amount})",
   "@createdWallet": { "placeholders": { "amount": {} } },
-  "chooseThisWallet": "Chọn ví này"
+  "chooseThisWallet": "Chọn ví này",
+  "addTransactionCta": "Thêm giao dịch"
 }

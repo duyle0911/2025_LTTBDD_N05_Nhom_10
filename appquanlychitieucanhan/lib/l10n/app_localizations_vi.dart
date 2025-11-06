@@ -704,4 +704,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get chooseThisWallet => 'Chọn ví này';
+
+  @override
+  String get addTransactionCta => 'Thêm giao dịch';
 }
