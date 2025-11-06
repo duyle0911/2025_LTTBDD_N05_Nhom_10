@@ -1,3 +1,4 @@
+// lib/screens/home_screen.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -10,7 +11,7 @@ import '../widgets/recent_transactions_section.dart';
 
 import 'transaction/add_income_screen.dart';
 import 'transaction/add_expense_screen.dart';
-import '../screens/wallet_screen.dart';
+import 'wallet_screen.dart';
 import '../l10n/l10n_ext.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -112,8 +113,7 @@ class HomeScreen extends StatelessWidget {
                           items: [
                             for (final w in wm.wallets)
                               DropdownMenuItem(
-                                  value: w.id,
-                                  child: Text('${w.name} (${w.currency})'))
+                                  value: w.id, child: Text('${w.name} (VND)')),
                           ],
                           onChanged: (v) => setSt(() => selectedId = v),
                           decoration: InputDecoration(
@@ -133,8 +133,9 @@ class HomeScreen extends StatelessWidget {
                       width: double.infinity,
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black12),
-                          borderRadius: BorderRadius.circular(12)),
+                        border: Border.all(color: Colors.black12),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       child: Row(
                         children: [
                           const Icon(Icons.account_balance),
@@ -185,7 +186,7 @@ class HomeScreen extends StatelessWidget {
                           icon: const Icon(Icons.north_east),
                           label: Text(t.addExpenseTitle),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.redAccent,
+                            backgroundColor: const Color(0xFFE91E63), // đỏ hồng
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
@@ -195,11 +196,6 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  if (wm.wallets.isEmpty) ...[
-                    const SizedBox(height: 12),
-                    Text(t.noWalletsHint,
-                        style: Theme.of(sheetCtx).textTheme.bodyMedium),
-                  ],
                 ],
               ),
             );
@@ -212,6 +208,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.l10n;
+
     final wm = context.watch<WalletModel>();
     final wid = wm.selectedWalletId ??
         (wm.wallets.isNotEmpty ? wm.wallets.first.id : null);
@@ -228,7 +225,9 @@ class HomeScreen extends StatelessWidget {
         onPressed: () =>
             _ensureWalletThen(context, () => _openQuickAddSheet(context)),
         icon: const Icon(Icons.add),
-        label: Text(t.transactionsTitleShort),
+        label: const Text(' Thêm giao dịch'),
+        backgroundColor: const Color(0xFFE91E63), // đỏ hồng
+        foregroundColor: Colors.white,
       ),
       body: ListView(
         padding: EdgeInsets.only(bottom: bottomPad),
@@ -237,8 +236,12 @@ class HomeScreen extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(16),
-              child: Image.asset('assets/images/banner_wallet.png',
-                  height: 70, width: double.maxFinite, fit: BoxFit.cover),
+              child: Image.asset(
+                'assets/images/banner_wallet.png',
+                height: 70,
+                width: double.maxFinite,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
           BalanceCard(balance: walletBalance),
@@ -263,8 +266,9 @@ class HomeScreen extends StatelessWidget {
                     icon: const Icon(Icons.north_east),
                     label: Text(t.addExpenseUpper),
                     style: FilledButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor: Colors.redAccent),
+                      foregroundColor: Colors.white,
+                      backgroundColor: const Color(0xFFE91E63), // đỏ hồng
+                    ),
                   ),
                 ),
               ],
@@ -282,22 +286,24 @@ class HomeScreen extends StatelessWidget {
                         ?.copyWith(fontWeight: FontWeight.bold)),
                 const Spacer(),
                 TextButton.icon(
-                    onPressed: () => _goAllTransactions(context),
-                    icon: const Icon(Icons.list_alt),
-                    label: Text(t.viewAll)),
+                  onPressed: () => _goAllTransactions(context),
+                  icon: const Icon(Icons.list_alt),
+                  label: Text(t.viewAll),
+                ),
               ],
             ),
           ),
           Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Consumer<ExpenseModel>(
-                  builder: (_, m, __) => SummaryCard(expense: m))),
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Consumer<ExpenseModel>(
+                builder: (_, m, __) => SummaryCard(expense: m)),
+          ),
           const SizedBox(height: 8),
           Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: Consumer<ExpenseModel>(
-                  builder: (_, m, __) =>
-                      RecentTransactionsSection(expense: m))),
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Consumer<ExpenseModel>(
+                builder: (_, m, __) => RecentTransactionsSection(expense: m)),
+          ),
         ],
       ),
     );

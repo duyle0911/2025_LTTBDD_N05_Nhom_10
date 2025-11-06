@@ -1,3 +1,4 @@
+// lib/screens/transaction/add_expense_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -19,20 +20,8 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   final _amountController = TextEditingController();
   final _noteController = TextEditingController();
 
-  String _selectedCategoryKey = 'food';
+  String? _selectedCategory; // dùng label trực tiếp
   DateTime _selectedDate = DateTime.now();
-
-  static const _categoryKeys = <String>[
-    'food',
-    'education',
-    'clothes',
-    'shopping',
-    'entertainment',
-    'transport',
-    'bill',
-    'rent',
-    'other',
-  ];
 
   NumberFormat get _currencyFmt {
     final locale = Localizations.localeOf(context);
@@ -47,6 +36,11 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     super.dispose();
   }
 
+  void _ensureSelectedCategory(ExpenseModel m) {
+    _selectedCategory ??=
+        (m.expenseCategories.isNotEmpty ? m.expenseCategories.first : 'Khác');
+  }
+
   Future<void> _pickDate() async {
     final picked = await showDatePicker(
       context: context,
@@ -55,30 +49,6 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       initialDate: _selectedDate,
     );
     if (picked != null) setState(() => _selectedDate = picked);
-  }
-
-  String _labelForCategory(BuildContext context, String key) {
-    final t = context.l10n;
-    switch (key) {
-      case 'food':
-        return t.catFood;
-      case 'education':
-        return t.catEducation;
-      case 'clothes':
-        return t.catClothes;
-      case 'shopping':
-        return t.catShopping;
-      case 'entertainment':
-        return t.catEntertainment;
-      case 'transport':
-        return t.catTransport;
-      case 'bill':
-        return t.catBill;
-      case 'rent':
-        return t.catRent;
-      default:
-        return t.catOther;
-    }
   }
 
   void _submit() {
@@ -97,6 +67,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     final raw = _amountController.text.replaceAll(RegExp(r'[^0-9]'), '');
     final amount = double.tryParse(raw) ?? 0;
     final note = _noteController.text.trim();
+    final category = _selectedCategory ?? 'Khác';
 
     if (amount <= 0) {
       ScaffoldMessenger.of(context)
@@ -104,13 +75,11 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       return;
     }
 
-    final categoryLabel = _labelForCategory(context, _selectedCategoryKey);
-
     context.read<ExpenseModel>().addExpenseWithWallet(
           wm,
           amount,
           note,
-          categoryLabel,
+          category,
           walletId: wid,
           date: _selectedDate,
         );
@@ -118,7 +87,6 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(t.savedExpense(_currencyFmt.format(amount)))),
     );
-
     Navigator.pop(context);
   }
 
@@ -136,10 +104,126 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     );
   }
 
+  Future<void> _openCategoryManager() async {
+    final model = context.read<ExpenseModel>();
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) {
+        final nameCtrl = TextEditingController();
+        String editingName = '';
+        return StatefulBuilder(builder: (ctx, setSt) {
+          final list = model.expenseCategories;
+          return Padding(
+            padding: EdgeInsets.fromLTRB(
+                16, 12, 16, 16 + MediaQuery.of(ctx).viewInsets.bottom),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('Quản lý danh mục chi',
+                    style: TextStyle(fontWeight: FontWeight.w700)),
+                const SizedBox(height: 10),
+                for (final c in list)
+                  Card(
+                    margin: const EdgeInsets.symmetric(vertical: 4),
+                    child: ListTile(
+                      title: Text(c,
+                          style: const TextStyle(fontWeight: FontWeight.w600)),
+                      trailing: PopupMenuButton<String>(
+                        onSelected: (v) {
+                          if (v == 'edit') {
+                            editingName = c;
+                            nameCtrl.text = c;
+                            setSt(() {});
+                          } else if (v == 'delete') {
+                            model.removeCategory('expense', c);
+                            if (_selectedCategory == c) {
+                              setState(() => _selectedCategory = 'Khác');
+                            }
+                            setSt(() {});
+                          }
+                        },
+                        itemBuilder: (_) => [
+                          const PopupMenuItem(
+                              value: 'edit', child: Text('Chỉnh sửa')),
+                          if (c != 'Khác')
+                            const PopupMenuItem(
+                                value: 'delete', child: Text('Xóa')),
+                        ],
+                      ),
+                    ),
+                  ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: nameCtrl,
+                  decoration: InputDecoration(
+                    labelText: editingName.isEmpty
+                        ? 'Thêm danh mục mới'
+                        : 'Sửa danh mục',
+                    prefixIcon: const Icon(Icons.badge_outlined),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: FilledButton.icon(
+                        icon: const Icon(Icons.save_rounded),
+                        label: Text(editingName.isEmpty ? 'Thêm' : 'Lưu'),
+                        onPressed: () {
+                          final n = nameCtrl.text.trim();
+                          if (n.isEmpty) return;
+                          if (editingName.isEmpty) {
+                            model.addCategory('expense', n);
+                            setSt(() {});
+                          } else {
+                            model.renameCategory('expense', editingName, n);
+                            if (_selectedCategory == editingName) {
+                              setState(() => _selectedCategory = n);
+                            }
+                            editingName = '';
+                            nameCtrl.clear();
+                            setSt(() {});
+                          }
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    if (editingName.isNotEmpty)
+                      OutlinedButton(
+                        onPressed: () {
+                          editingName = '';
+                          nameCtrl.clear();
+                          setSt(() {});
+                        },
+                        child: const Text('Hủy'),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        });
+      },
+    );
+    setState(() {}); // refresh dropdown/chips sau khi quản lý
+  }
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final t = context.l10n;
+    final theme = Theme.of(context);
+    final model = context.watch<ExpenseModel>();
+    _ensureSelectedCategory(model);
+
+    final categories = model.expenseCategories;
 
     return Scaffold(
       appBar: AppBar(
@@ -154,8 +238,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
             Card(
               elevation: 2,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
+                  borderRadius: BorderRadius.circular(16)),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Form(
@@ -174,41 +257,47 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                           prefixIcon: const Icon(Icons.money_off),
                           suffixText: t.vndSuffix,
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+                              borderRadius: BorderRadius.circular(12)),
                         ),
                         validator: (v) {
                           final raw =
                               (v ?? '').replaceAll(RegExp(r'[^0-9]'), '');
                           if (raw.isEmpty) return t.pleaseEnterAmount;
-                          if (double.tryParse(raw) == null) {
-                            return t.amountInvalid;
-                          }
-                          if ((double.tryParse(raw) ?? 0) <= 0) {
-                            return t.amountMustBeGreaterThanZero;
-                          }
+                          final d = double.tryParse(raw);
+                          if (d == null) return t.amountInvalid;
+                          if (d <= 0) return t.amountMustBeGreaterThanZero;
                           return null;
                         },
                         onChanged: _formatCurrencyOnType,
                       ),
                       const SizedBox(height: 16),
-                      DropdownButtonFormField<String>(
-                        value: _selectedCategoryKey,
-                        items: _categoryKeys
-                            .map((k) => DropdownMenuItem(
-                                  value: k,
-                                  child: Text(_labelForCategory(context, k)),
-                                ))
-                            .toList(),
-                        onChanged: (value) =>
-                            setState(() => _selectedCategoryKey = value!),
-                        decoration: InputDecoration(
-                          labelText: t.category,
-                          prefixIcon: const Icon(Icons.category),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: DropdownButtonFormField<String>(
+                              value: _selectedCategory,
+                              isExpanded: true,
+                              items: categories
+                                  .map((c) => DropdownMenuItem(
+                                      value: c, child: Text(c)))
+                                  .toList(),
+                              onChanged: (v) =>
+                                  setState(() => _selectedCategory = v),
+                              decoration: InputDecoration(
+                                labelText: t.category,
+                                prefixIcon: const Icon(Icons.category),
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12)),
+                              ),
+                            ),
                           ),
-                        ),
+                          const SizedBox(width: 8),
+                          IconButton(
+                            tooltip: 'Quản lý danh mục',
+                            onPressed: _openCategoryManager,
+                            icon: const Icon(Icons.settings),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 16),
                       TextFormField(
@@ -218,8 +307,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                           labelText: t.noteOptional,
                           prefixIcon: const Icon(Icons.note_alt_outlined),
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+                              borderRadius: BorderRadius.circular(12)),
                         ),
                         maxLines: 2,
                       ),
@@ -232,16 +320,15 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                             labelText: t.date,
                             prefixIcon: const Icon(Icons.event),
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+                                borderRadius: BorderRadius.circular(12)),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                DateFormat('dd/MM/yyyy').format(_selectedDate),
-                                style: theme.textTheme.bodyLarge,
-                              ),
+                                  DateFormat('dd/MM/yyyy')
+                                      .format(_selectedDate),
+                                  style: theme.textTheme.bodyLarge),
                               const Icon(Icons.keyboard_arrow_down),
                             ],
                           ),
@@ -259,11 +346,9 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            textStyle: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
+                                borderRadius: BorderRadius.circular(12)),
+                            textStyle:
+                                const TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
@@ -276,12 +361,12 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: _categoryKeys.take(6).map((k) {
-                final selected = k == _selectedCategoryKey;
+              children: categories.take(6).map((c) {
+                final selected = c == _selectedCategory;
                 return ChoiceChip(
-                  label: Text(_labelForCategory(context, k)),
+                  label: Text(c),
                   selected: selected,
-                  onSelected: (_) => setState(() => _selectedCategoryKey = k),
+                  onSelected: (_) => setState(() => _selectedCategory = c),
                   selectedColor: Colors.redAccent.withOpacity(0.15),
                 );
               }).toList(),

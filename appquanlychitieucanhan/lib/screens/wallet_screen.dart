@@ -106,7 +106,7 @@ class _WalletScreenState extends State<WalletScreen> {
                   controller: balance,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
-                    labelText: 'Số dư ban đầu (VND)',
+                    labelText: 'Số dư (VND)',
                     hintText: '0',
                     prefixIcon:
                         const Icon(Icons.account_balance_wallet_outlined),
@@ -197,6 +197,47 @@ class _WalletScreenState extends State<WalletScreen> {
     }
   }
 
+  final _newName = TextEditingController();
+  final _newBalance = TextEditingController(text: '');
+  String _newType = 'Tiết kiệm';
+  final _newDesc = TextEditingController();
+
+  void _resetInlineForm() {
+    setState(() {
+      _newName.clear();
+      _newType = 'Tiết kiệm';
+      _newBalance.clear();
+      _newDesc.clear();
+    });
+  }
+
+  double _parseBalance(String text) {
+    if (text.trim().isEmpty) return 0;
+    final raw = text.replaceAll(RegExp(r'[^0-9.]'), '');
+    return double.tryParse(raw) ?? 0;
+  }
+
+  void _createNewWalletInline() {
+    final name = _newName.text.trim();
+    if (name.isEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Nhập tên ví')));
+      return;
+    }
+    final initBal = _parseBalance(_newBalance.text);
+    final wm = context.read<WalletModel>();
+    final id = wm.addWallet(
+      name: name,
+      type: _newType,
+      initialBalance: initBal,
+    );
+    wm.select(id);
+    _resetInlineForm();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Đã tạo ví mới (${_fmtVND().format(initBal)})')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final wm = context.watch<WalletModel>();
@@ -219,20 +260,15 @@ class _WalletScreenState extends State<WalletScreen> {
           elevation: 0,
           actions: [
             IconButton(
-              tooltip: 'Tạo ví',
+              tooltip: 'Tạo ví (popup)',
               onPressed: () => _showWalletForm(context),
               icon: const Icon(Icons.add),
             ),
           ],
         ),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () => _showWalletForm(context),
-          icon: const Icon(Icons.add),
-          label: const Text('Thêm ví'),
-        ),
         body: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
             child: Column(
               children: [
                 Container(
@@ -246,10 +282,9 @@ class _WalletScreenState extends State<WalletScreen> {
                       const Icon(Icons.account_balance, color: Colors.black54),
                       const SizedBox(width: 8),
                       Expanded(
-                        child: Text(
-                          'Tổng số ví: ${wm.wallets.length}',
-                          style: const TextStyle(fontWeight: FontWeight.w600),
-                        ),
+                        child: Text('Tổng số ví: ${wm.wallets.length}',
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w600)),
                       ),
                       if (wm.selectedWalletId != null)
                         Container(
@@ -272,29 +307,124 @@ class _WalletScreenState extends State<WalletScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
-
-                
+                for (int i = 0; i < wm.wallets.length; i++) ...[
+                  _buildWalletItem(wm.wallets[i], fmt),
+                  const SizedBox(height: 10),
+                ],
+                const SizedBox(height: 4),
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.fromLTRB(14, 18, 14, 18),
+                  padding: const EdgeInsets.fromLTRB(14, 12, 14, 16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(28),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(.20),
-                        blurRadius: 20,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
+                    color: Colors.white.withOpacity(.92),
+                    borderRadius: BorderRadius.circular(16),
                   ),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      for (int i = 0; i < wm.wallets.length; i++) ...[
-                        _buildWalletItem(wm.wallets[i], fmt),
-                        if (i < wm.wallets.length - 1)
-                          const SizedBox(height: 10),
-                      ],
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.green.withOpacity(.15),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Text('NEW',
+                                style: TextStyle(
+                                    color: Colors.green,
+                                    fontWeight: FontWeight.w700)),
+                          ),
+                          const SizedBox(width: 10),
+                          const Expanded(
+                            child: Text('Tạo ví mới',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w700, fontSize: 16)),
+                          ),
+                          TextButton(
+                            onPressed: _resetInlineForm,
+                            child: const Text('Đặt lại'),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: _newName,
+                        decoration: InputDecoration(
+                          labelText: 'Tên ví',
+                          prefixIcon: const Icon(Icons.badge_outlined),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      DropdownButtonFormField<String>(
+                        value: _newType,
+                        items: _typesVN
+                            .map((e) =>
+                                DropdownMenuItem(value: e, child: Text(e)))
+                            .toList(),
+                        onChanged: (v) =>
+                            setState(() => _newType = v ?? _newType),
+                        decoration: InputDecoration(
+                          labelText: 'Loại tài khoản',
+                          prefixIcon: const Icon(Icons.category_outlined),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      TextField(
+                        controller: _newBalance,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          labelText: 'Số dư',
+                          hintText: '0',
+                          suffixText: 'VND',
+                          prefixIcon:
+                              const Icon(Icons.account_balance_wallet_outlined),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      DropdownButtonFormField<String>(
+                        value: 'VND',
+                        items: const [
+                          DropdownMenuItem(value: 'VND', child: Text('VND')),
+                        ],
+                        onChanged: null,
+                        decoration: InputDecoration(
+                          labelText: 'Đơn vị tiền tệ',
+                          prefixIcon: const Icon(Icons.payments_outlined),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      TextField(
+                        controller: _newDesc,
+                        decoration: InputDecoration(
+                          labelText: 'Mô tả (tuỳ chọn)',
+                          prefixIcon: const Icon(Icons.notes_outlined),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                        ),
+                        maxLines: 2,
+                      ),
+                      const SizedBox(height: 12),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: FilledButton.icon(
+                          onPressed: _createNewWalletInline,
+                          icon: const Icon(Icons.add),
+                          label: const Text('Tạo ví'),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: const Color(0xFF00B894),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -325,9 +455,7 @@ class _WalletScreenState extends State<WalletScreen> {
           ),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected
-                ? Colors.white.withOpacity(.9)
-                : Colors.white24,
+            color: isSelected ? Colors.white.withOpacity(.9) : Colors.white24,
             width: isSelected ? 2 : 1,
           ),
         ),
