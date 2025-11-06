@@ -24,6 +24,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tabProfile => 'Profile';
 
   @override
+  String get tabAbout => 'About';
+
+  @override
+  String get tabWallet => 'Wallet';
+
+  @override
   String get homeOverviewTitle => 'Overview';
 
   @override
@@ -486,12 +492,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get about_members_title => 'Team Members';
 
   @override
-  String get tabAbout => 'About';
-
-  @override
-  String get tabWallet => 'Wallet';
-
-  @override
   String get walletTitle => 'Wallets';
 
   @override
@@ -602,4 +602,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cashflowChartTitle => 'Income and Expense over time';
+
+  @override
+  String get incomeFullLabel => 'Income';
+
+  @override
+  String get expenseFullLabel => 'Expense';
+
+  @override
+  String get balance => 'Balance';
+
+  @override
+  String get wallet => 'Wallet';
+
+  @override
+  String get addWallet => 'Add wallet';
+
+  @override
+  String get walletCreated => 'Wallet created';
+
+  @override
+  String get selectWalletHint => 'Select a wallet';
 }

@@ -43,10 +43,9 @@ class RecentTransactionsSection extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [_blue, _purple, _red],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+              colors: [_blue, _purple, _red],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight),
           borderRadius: BorderRadius.circular(20),
         ),
         child: ClipRRect(
@@ -61,22 +60,18 @@ class RecentTransactionsSection extends StatelessWidget {
                     width: double.infinity,
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
+                        color: Colors.white.withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(14)),
                     child: Column(
                       children: [
                         Icon(Icons.receipt_long,
                             color: Colors.white.withOpacity(0.9), size: 40),
                         const SizedBox(height: 8),
-                        Text(
-                          t.noTransactionsYet,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
+                        Text(t.noTransactionsYet,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white),
+                            textAlign: TextAlign.center),
                       ],
                     ),
                   ),
@@ -87,38 +82,29 @@ class RecentTransactionsSection extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   child: Row(
                     children: [
-                      Text(
-                        t.recentTransactions,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
+                      Text(t.recentTransactions,
+                          style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white)),
                       const SizedBox(width: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: Colors.white24,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          '${recent.length}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                            color: Colors.white24,
+                            borderRadius: BorderRadius.circular(8)),
+                        child: Text('${recent.length}',
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600)),
                       ),
                       const Spacer(),
                       TextButton(
                         onPressed: () =>
                             Navigator.pushNamed(context, '/transactions'),
-                        child: Text(
-                          t.viewAll,
-                          style: const TextStyle(color: Colors.white),
-                        ),
+                        child: Text(t.viewAll,
+                            style: const TextStyle(color: Colors.white)),
                       ),
                     ],
                   ),
@@ -149,32 +135,26 @@ class RecentTransactionsSection extends StatelessWidget {
                         leading: CircleAvatar(
                           backgroundColor: color.withOpacity(0.12),
                           child: Icon(
-                            isIncome ? Icons.south_west : Icons.north_east,
-                            color: color,
-                          ),
+                              isIncome ? Icons.south_west : Icons.north_east,
+                              color: color),
                         ),
-                        title: Text(
-                          tr.note.isNotEmpty ? tr.note : tr.category,
-                          style: const TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                        subtitle: Text(
-                          _friendlyDate(context, tr.date),
-                          style: const TextStyle(color: Colors.grey),
-                        ),
+                        title: Text(tr.note.isNotEmpty ? tr.note : tr.category,
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w600)),
+                        subtitle: Text(_friendlyDate(context, tr.date),
+                            style: const TextStyle(color: Colors.grey)),
                         trailing: Text(
                           '$sign ${fmt.format(tr.amount)}',
                           style: TextStyle(
-                            color: color,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
+                              color: color,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16),
                         ),
                         onTap: () async {
                           final text = '$sign ${fmt.format(tr.amount)}';
                           await Clipboard.setData(ClipboardData(text: text));
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(t.copiedBalance(text))),
-                          );
+                              SnackBar(content: Text(t.copiedBalance(text))));
                         },
                       ),
                     );

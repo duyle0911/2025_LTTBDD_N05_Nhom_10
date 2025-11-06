@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'models/expense_model.dart';
+import 'models/wallet_model.dart';
 import 'screens/home_screen.dart';
 import 'screens/wallet_screen.dart';
 import 'screens/statistics_screen.dart';
@@ -25,9 +26,13 @@ void main() async {
       statusBarIconBrightness: Brightness.dark,
     ),
   );
+
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => ExpenseModel(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ExpenseModel()),
+        ChangeNotifierProvider(create: (_) => WalletModel()),
+      ],
       child: const MyApp(),
     ),
   );
@@ -68,6 +73,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     const seed = Color(0xFF0A84FF);
+
     return MaterialApp(
       onGenerateTitle: (ctx) => ctx.l10n.appTitle,
       debugShowCheckedModeBanner: false,
@@ -106,8 +112,8 @@ class _MyAppState extends State<MyApp> {
             borderRadius: BorderRadius.circular(14),
             borderSide: const BorderSide(color: Colors.black12),
           ),
-          focusedBorder: const OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(14)),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: const BorderRadius.all(Radius.circular(14)),
             borderSide: BorderSide(color: seed, width: 1.4),
           ),
         ),
@@ -166,6 +172,14 @@ class _HomePageState extends State<HomePage> {
     ProfileScreen(),
     AboutScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<WalletModel>().seedIfEmpty();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

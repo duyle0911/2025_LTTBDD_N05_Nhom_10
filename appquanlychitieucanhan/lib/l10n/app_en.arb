@@ -7,6 +7,8 @@
   "tabTransactions": "Transactions",
   "tabStats": "Statistics",
   "tabProfile": "Profile",
+  "tabAbout": "About",
+  "tabWallet": "Wallet",
 
   "homeOverviewTitle": "Overview",
   "addIncomeUpper": "ADD INCOME",
@@ -190,8 +192,7 @@
 
   "about_title": "About Us",
   "about_members_title": "Team Members",
-  "tabAbout": "About",
-  "tabWallet": "Wallet",
+
   "walletTitle": "Wallets",
   "chooseWalletTooltip": "Choose wallet",
   "chooseWalletTitle": "Choose wallet",
@@ -236,6 +237,12 @@
   "addWalletFab": "Add wallet",
   "noWalletsHint": "No wallets yet. Create your first wallet!",
   "cashflowChartTitle": "Income and Expense over time",
-  "incomeFull": "Income",
-  "expenseFull": "Expense"
+  "incomeFullLabel": "Income",
+  "expenseFullLabel": "Expense",
+  "balance": "Balance",
+  "wallet": "Wallet",
+  "addWallet": "Add wallet",
+  "walletCreated": "Wallet created",
+
+  "selectWalletHint": "Select a wallet"
 }

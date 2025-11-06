@@ -1,672 +1,386 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../l10n/l10n_ext.dart';
-
-class WalletItem {
-  final String id;
-  String name;
-  String type;
-  double balance;
-  String currency;
-  String? note;
-  List<Color> gradient;
-
-  WalletItem({
-    required this.id,
-    required this.name,
-    required this.type,
-    required this.balance,
-    required this.currency,
-    this.note,
-    required this.gradient,
-  });
-}
+import 'package:provider/provider.dart';
+import '../models/wallet_model.dart';
 
 class WalletScreen extends StatefulWidget {
-  const WalletScreen({Key? key}) : super(key: key);
+  const WalletScreen({super.key});
+
   @override
   State<WalletScreen> createState() => _WalletScreenState();
 }
 
 class _WalletScreenState extends State<WalletScreen> {
-  final List<WalletItem> _wallets = [];
-  String? _selectedWalletId;
+  Color get _blue => const Color.fromARGB(255, 26, 150, 233);
+  Color get _purple => const Color.fromARGB(255, 71, 240, 130);
+  Color get _red => const Color.fromARGB(255, 7, 143, 227);
 
-  final _formKey = GlobalKey<FormState>();
-  final _nameCtrl = TextEditingController();
-  final _balanceCtrl = TextEditingController();
-  final _noteCtrl = TextEditingController();
+  final _typesVN = const ['Tiền mặt', 'Ngân hàng', 'Thẻ tín dụng', 'Tiết kiệm'];
 
-  String _typeCode = 'cash';
-  String _currency = 'VND';
-
-  final _typeCodes = const ['cash', 'bank', 'credit', 'savings'];
-  final _currencies = const ['VND', 'USD', 'EUR', 'JPY'];
-
-  Color get _g1 => const Color.fromARGB(255, 26, 150, 233);
-  Color get _g2 => const Color.fromARGB(255, 71, 240, 130);
-  Color get _g3 => const Color.fromARGB(255, 7, 143, 227);
-
-  NumberFormat _moneyFmt(BuildContext context, String currency) {
-    if (currency == 'VND') {
-      final lc = Localizations.localeOf(context).languageCode;
-      final name = lc == 'vi' ? 'vi_VN' : 'en_US';
-      return NumberFormat.currency(locale: name, symbol: '₫', decimalDigits: 0);
-    }
-    return NumberFormat.simpleCurrency(name: currency);
+  NumberFormat _fmtVND() {
+    final lc = Localizations.localeOf(context).languageCode;
+    final name = lc == 'vi' ? 'vi_VN' : 'en_US';
+    return NumberFormat.currency(locale: name, symbol: '₫', decimalDigits: 0);
   }
 
-  String _typeLabel(BuildContext context, String code) {
-    final t = context.l10n;
-    switch (code) {
-      case 'cash':
-        return t.walletTypeCash;
-      case 'bank':
-        return t.walletTypeBank;
-      case 'credit':
-        return t.walletTypeCredit;
-      case 'savings':
-        return t.walletTypeSavings;
-      default:
-        return code;
-    }
+  Color _fromHex(String hex) {
+    var h = hex.replaceAll('#', '');
+    if (h.length == 3) h = h.split('').map((c) => '$c$c').join();
+    if (h.length == 6) h = 'FF$h';
+    return Color(int.parse(h, radix: 16));
   }
 
-  List<Color> _gradientFor(String code) {
-    switch (code) {
-      case 'cash':
-        return [const Color(0xFF6EE7B7), const Color(0xFF34D399)];
-      case 'bank':
-        return [const Color(0xFF60A5FA), const Color(0xFF3B82F6)];
-      case 'credit':
-        return [const Color(0xFFA78BFA), const Color(0xFF7C3AED)];
-      case 'savings':
-        return [const Color(0xFFFDE68A), const Color(0xFFF59E0B)];
-      default:
-        return [Colors.grey, Colors.blueGrey];
-    }
-  }
+  Color _onColor(Color c) =>
+      ThemeData.estimateBrightnessForColor(c) == Brightness.dark
+          ? Colors.white
+          : Colors.black87;
 
-  @override
-  void dispose() {
-    _nameCtrl.dispose();
-    _balanceCtrl.dispose();
-    _noteCtrl.dispose();
-    super.dispose();
-  }
+  List<Color> _cardGradient(Color base) => [
+        base.withOpacity(.95),
+        base.withOpacity(.78),
+      ];
 
-  void _openCreateSheet() {
-    final t = context.l10n;
-    _nameCtrl.clear();
-    _balanceCtrl.clear();
-    _noteCtrl.clear();
-    _typeCode = 'cash';
-    _currency = 'VND';
-    _openFormSheet(
-      title: t.walletCreateTitle,
-      onSubmit: () {
-        if (_formKey.currentState?.validate() ?? false) {
-          final name = _nameCtrl.text.trim();
-          final init =
-              double.tryParse(_balanceCtrl.text.replaceAll(',', '')) ?? 0;
-          final item = WalletItem(
-            id: DateTime.now().millisecondsSinceEpoch.toString(),
-            name: name,
-            type: _typeCode,
-            balance: init,
-            currency: _currency,
-            note: _noteCtrl.text.trim().isEmpty ? null : _noteCtrl.text.trim(),
-            gradient: _gradientFor(_typeCode),
-          );
-          setState(() => _wallets.insert(0, item));
-          Navigator.pop(context);
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(t.walletAdded)));
-        }
-      },
+  Future<void> _showWalletForm(BuildContext context, {WalletItem? edit}) async {
+    final wm = context.read<WalletModel>();
+    final name = TextEditingController(text: edit?.name ?? '');
+    String type = edit?.type ?? _typesVN.first;
+    final balance = TextEditingController(
+      text: edit != null
+          ? _fmtVND().format(edit.balance).replaceAll(RegExp(r'[^\d,.]'), '')
+          : '',
     );
-  }
+    final formKey = GlobalKey<FormState>();
 
-  void _openEditSheet(WalletItem w) {
-    final t = context.l10n;
-    _nameCtrl.text = w.name;
-    _balanceCtrl.text = w.balance == 0 ? '' : w.balance.toStringAsFixed(0);
-    _noteCtrl.text = w.note ?? '';
-    _typeCode = w.type;
-    _currency = w.currency;
-    _openFormSheet(
-      title: t.walletEditTitle,
-      onSubmit: () {
-        if (_formKey.currentState?.validate() ?? false) {
-          setState(() {
-            w.name = _nameCtrl.text.trim();
-            w.type = _typeCode;
-            w.currency = _currency;
-            final parsed =
-                double.tryParse(_balanceCtrl.text.replaceAll(',', ''));
-            if (parsed != null) w.balance = parsed;
-            w.note =
-                _noteCtrl.text.trim().isEmpty ? null : _noteCtrl.text.trim();
-            w.gradient = _gradientFor(_typeCode);
-          });
-          Navigator.pop(context);
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(t.walletUpdated)));
-        }
-      },
-    );
-  }
-
-  Future<void> _deleteWallet(WalletItem w) async {
-    final t = context.l10n;
-    if (w.balance != 0) {
-      final msg = t.walletCannotDeleteWithBalance(
-          _moneyFmt(context, w.currency).format(w.balance), w.name);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
-      return;
-    }
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text(t.deleteConfirmTitle),
-        content: Text(t.walletDeleteConfirm(w.name)),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: Text(t.cancel)),
-          FilledButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: Text(t.delete)),
-        ],
-      ),
-    );
-    if (ok == true) {
-      setState(() {
-        _wallets.removeWhere((e) => e.id == w.id);
-        if (_selectedWalletId == w.id) _selectedWalletId = null;
-      });
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(t.walletDeleted)));
-    }
-  }
-
-  void _openSelectWalletSheet() {
-    final t = context.l10n;
-    showModalBottomSheet(
-      context: context,
-      builder: (_) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 6),
-            Text(t.chooseWalletTitle,
-                style: const TextStyle(fontWeight: FontWeight.bold)),
-            ListTile(
-              leading: const Icon(Icons.all_inbox_outlined),
-              title: Text(t.allWallets),
-              onTap: () {
-                setState(() => _selectedWalletId = null);
-                Navigator.pop(context);
-              },
-              trailing: _selectedWalletId == null
-                  ? const Icon(Icons.check, color: Colors.blue)
-                  : null,
-            ),
-            const Divider(height: 0),
-            ..._wallets.map((w) => ListTile(
-                  leading: const Icon(Icons.account_balance_wallet_outlined),
-                  title: Text(w.name),
-                  subtitle: Text(_typeLabel(context, w.type)),
-                  trailing: _selectedWalletId == w.id
-                      ? const Icon(Icons.check, color: Colors.blue)
-                      : null,
-                  onTap: () {
-                    setState(() => _selectedWalletId = w.id);
-                    Navigator.pop(context);
-                  },
-                )),
-            const SizedBox(height: 12),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _openFormSheet({required String title, required VoidCallback onSubmit}) {
-    final t = context.l10n;
-    showModalBottomSheet(
+    await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (_) => Padding(
-        padding: EdgeInsets.only(
-          left: 16,
-          right: 16,
-          top: 16,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-        ),
-        child: Form(
-          key: _formKey,
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _nameCtrl,
-              decoration: InputDecoration(
-                labelText: t.walletNameLabel,
-                hintText: t.walletNameHint,
-                border: const OutlineInputBorder(),
-                isDense: true,
-              ),
-              validator: (v) =>
-                  (v == null || v.trim().isEmpty) ? t.walletNameRequired : null,
-            ),
-            const SizedBox(height: 10),
-            DropdownButtonFormField<String>(
-              value: _typeCode,
-              items: _typeCodes
-                  .map((code) => DropdownMenuItem(
-                      value: code, child: Text(_typeLabel(context, code))))
-                  .toList(),
-              onChanged: (s) => setState(() => _typeCode = s ?? _typeCode),
-              decoration: InputDecoration(
-                labelText: t.walletTypeLabel,
-                border: const OutlineInputBorder(),
-                isDense: true,
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextFormField(
-              controller: _balanceCtrl,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: t.initialBalanceLabel,
-                hintText: t.initialBalanceHint,
-                border: const OutlineInputBorder(),
-                isDense: true,
-              ),
-              validator: (v) {
-                if (v == null || v.trim().isEmpty) return null;
-                final n = double.tryParse(v.replaceAll(',', ''));
-                if (n == null) return t.initialBalanceInvalid;
-                return null;
-              },
-            ),
-            const SizedBox(height: 10),
-            DropdownButtonFormField<String>(
-              value: _currency,
-              items: _currencies
-                  .map((c) => DropdownMenuItem(value: c, child: Text(c)))
-                  .toList(),
-              onChanged: (s) => setState(() => _currency = s ?? _currency),
-              decoration: InputDecoration(
-                labelText: t.currencyLabel,
-                border: const OutlineInputBorder(),
-                isDense: true,
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextFormField(
-              controller: _noteCtrl,
-              maxLines: 2,
-              decoration: InputDecoration(
-                labelText: t.noteOptional,
-                hintText: t.walletNoteHint,
-                border: const OutlineInputBorder(),
-                isDense: true,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Row(
+      showDragHandle: true,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        final viewInsets = MediaQuery.of(ctx).viewInsets.bottom;
+        return Padding(
+          padding: EdgeInsets.fromLTRB(16, 8, 16, 16 + viewInsets),
+          child: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text(t.cancel),
+                Text(
+                  edit == null ? 'Tạo ví' : 'Chỉnh sửa ví',
+                  style: Theme.of(ctx)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: name,
+                  decoration: InputDecoration(
+                    labelText: 'Tên ví',
+                    prefixIcon: const Icon(Icons.badge_outlined),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                  validator: (v) =>
+                      (v == null || v.trim().isEmpty) ? 'Nhập tên ví' : null,
+                ),
+                const SizedBox(height: 10),
+                DropdownButtonFormField<String>(
+                  value: type,
+                  items: _typesVN
+                      .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                      .toList(),
+                  onChanged: (v) => setState(() => type = v ?? _typesVN.first),
+                  decoration: InputDecoration(
+                    labelText: 'Loại ví',
+                    prefixIcon: const Icon(Icons.category_outlined),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12)),
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: onSubmit,
-                    child: Text(t.save),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: balance,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: 'Số dư ban đầu (VND)',
+                    hintText: '0',
+                    prefixIcon:
+                        const Icon(Icons.account_balance_wallet_outlined),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) return null;
+                    final raw = v.replaceAll(RegExp(r'[^0-9.]'), '');
+                    final d = double.tryParse(raw);
+                    if (d == null) return 'Số dư không hợp lệ';
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: () {
+                      if (!formKey.currentState!.validate()) return;
+                      final raw = balance.text.isEmpty
+                          ? 0.0
+                          : double.parse(
+                              balance.text.replaceAll(RegExp(r'[^0-9.]'), ''));
+                      if (edit == null) {
+                        final id = wm.addWallet(
+                          name: name.text,
+                          type: type,
+                          initialBalance: raw,
+                        );
+                        wm.select(id);
+                      } else {
+                        wm.updateWallet(
+                          edit.id,
+                          name: name.text,
+                          type: type,
+                          balance: raw,
+                        );
+                        wm.select(edit.id);
+                      }
+                      Navigator.pop(ctx);
+                    },
+                    icon: const Icon(Icons.save_rounded),
+                    label: Text(edit == null ? 'Tạo ví' : 'Lưu thay đổi'),
                   ),
                 ),
               ],
             ),
-          ]),
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _walletCard(BuildContext context, WalletItem w) {
-    final t = context.l10n;
-    final fmt = _moneyFmt(context, w.currency);
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 14),
-      height: 92,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        gradient: LinearGradient(
-          colors: w.gradient,
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-              color: Colors.black.withOpacity(0.07),
-              blurRadius: 8,
-              offset: const Offset(0, 4))
+  Future<void> _confirmDelete(BuildContext context, WalletItem w) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Xóa ví'),
+        content: Text('Bạn có chắc muốn xóa ví "${w.name}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Hủy'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Xóa'),
+          ),
         ],
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: () {},
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.18),
-                    shape: BoxShape.circle),
-                child: const Icon(Icons.account_balance_wallet_outlined,
-                    color: Colors.white),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(w.name,
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16)),
-                    const SizedBox(height: 6),
-                    Text('${_typeLabel(context, w.type)} • ${w.currency}',
-                        style: TextStyle(
-                            color: Colors.white.withOpacity(0.92),
-                            fontSize: 12)),
-                  ],
-                ),
-              ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(fmt.format(w.balance),
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 16)),
-                  PopupMenuButton<String>(
-                    icon: Icon(Icons.more_vert,
-                        color: Colors.white.withOpacity(.95)),
-                    itemBuilder: (_) => [
-                      PopupMenuItem(value: 'edit', child: Text(t.edit)),
-                      PopupMenuItem(value: 'delete', child: Text(t.delete)),
-                    ],
-                    onSelected: (v) {
-                      if (v == 'edit') _openEditSheet(w);
-                      if (v == 'delete') _deleteWallet(w);
-                    },
-                  ),
-                ],
-              ),
-            ]),
-          ),
-        ),
-      ),
     );
+    if (ok == true) context.read<WalletModel>().removeWallet(w.id);
+  }
+
+  IconData _iconForType(String vnType) {
+    switch (vnType) {
+      case 'Tiền mặt':
+        return Icons.account_balance_wallet;
+      case 'Ngân hàng':
+        return Icons.account_balance;
+      case 'Thẻ tín dụng':
+        return Icons.credit_card;
+      case 'Tiết kiệm':
+        return Icons.savings;
+      default:
+        return Icons.account_balance_wallet;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final t = context.l10n;
+    final wm = context.watch<WalletModel>();
+    final fmt = _fmtVND();
+
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
-            colors: [_g1, _g2, _g3],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight),
+          colors: [_blue, _purple, _red],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
-          title: Text(t.walletTitle),
+          title: const Text('Quản lý ví'),
           centerTitle: true,
           backgroundColor: Colors.transparent,
           elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => Navigator.maybePop(context),
-          ),
           actions: [
             IconButton(
-              tooltip: t.chooseWalletTooltip,
-              onPressed: _openSelectWalletSheet,
-              icon: const Icon(Icons.swap_horiz, color: Colors.white),
+              tooltip: 'Tạo ví',
+              onPressed: () => _showWalletForm(context),
+              icon: const Icon(Icons.add),
             ),
           ],
         ),
-        body: SingleChildScrollView(
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () => _showWalletForm(context),
+          icon: const Icon(Icons.add),
+          label: const Text('Thêm ví'),
+        ),
+        body: SafeArea(
           child: Column(
             children: [
               const SizedBox(height: 8),
-              if (_wallets.isEmpty)
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(.92),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Text(t.noWalletsHint),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(.95),
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                )
-              else
-                Column(
-                    children:
-                        _wallets.map((w) => _walletCard(context, w)).toList()),
-              Container(
-                margin: const EdgeInsets.fromLTRB(14, 8, 14, 18),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(.92),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Row(
                     children: [
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 6),
-                                decoration: BoxDecoration(
-                                    color: Colors.blue.shade50,
-                                    borderRadius: BorderRadius.circular(8)),
-                                child: Text(t.badgeNew,
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 12)),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(t.createWalletSectionTitle,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold)),
-                            ]),
-                            TextButton(
-                              onPressed: () {
-                                _nameCtrl.clear();
-                                _balanceCtrl.clear();
-                                _noteCtrl.clear();
-                                setState(() {
-                                  _typeCode = _typeCodes.first;
-                                  _currency = _currencies.first;
-                                });
-                              },
-                              child: Text(t.reset),
-                            ),
-                          ]),
-                      const SizedBox(height: 8),
-                      Form(
-                        key: _formKey,
-                        child: Column(children: [
-                          TextFormField(
-                            controller: _nameCtrl,
-                            decoration: InputDecoration(
-                              labelText: t.walletNameShort,
-                              hintText: t.walletNameHintShort,
-                              border: const OutlineInputBorder(),
-                              isDense: true,
-                            ),
-                            validator: (v) => (v == null || v.trim().isEmpty)
-                                ? t.walletNameRequired
-                                : null,
-                          ),
-                          const SizedBox(height: 10),
-                          DropdownButtonFormField<String>(
-                            value: _typeCode,
-                            items: _typeCodes
-                                .map((code) => DropdownMenuItem(
-                                    value: code,
-                                    child: Text(_typeLabel(context, code))))
-                                .toList(),
-                            onChanged: (s) =>
-                                setState(() => _typeCode = s ?? _typeCode),
-                            decoration: InputDecoration(
-                              labelText: t.walletTypeLabel,
-                              border: const OutlineInputBorder(),
-                              isDense: true,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          TextFormField(
-                            controller: _balanceCtrl,
-                            keyboardType: TextInputType.number,
-                            decoration: InputDecoration(
-                              labelText: t.initialBalanceLabel,
-                              hintText: t.initialBalanceHint,
-                              border: const OutlineInputBorder(),
-                              isDense: true,
-                            ),
-                            validator: (v) {
-                              if (v == null || v.trim().isEmpty) return null;
-                              final n = double.tryParse(v.replaceAll(',', ''));
-                              if (n == null) return t.initialBalanceInvalid;
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 10),
-                          DropdownButtonFormField<String>(
-                            value: _currency,
-                            items: _currencies
-                                .map((c) =>
-                                    DropdownMenuItem(value: c, child: Text(c)))
-                                .toList(),
-                            onChanged: (s) =>
-                                setState(() => _currency = s ?? _currency),
-                            decoration: InputDecoration(
-                              labelText: t.currencyLabel,
-                              border: const OutlineInputBorder(),
-                              isDense: true,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          TextFormField(
-                            controller: _noteCtrl,
-                            maxLines: 2,
-                            decoration: InputDecoration(
-                              labelText: t.noteOptional,
-                              hintText: t.walletNoteHint,
-                              border: const OutlineInputBorder(),
-                              isDense: true,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton.icon(
-                              onPressed: _openCreateSheet,
-                              icon: const Icon(Icons.edit_note),
-                              label: Text(t.openFullForm),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.grey.shade200,
-                                foregroundColor: Colors.black87,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8)),
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 12),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                if (_formKey.currentState?.validate() ??
-                                    false) {
-                                  final name = _nameCtrl.text.trim();
-                                  final init = double.tryParse(_balanceCtrl.text
-                                          .replaceAll(',', '')) ??
-                                      0;
-                                  final item = WalletItem(
-                                    id: DateTime.now()
-                                        .millisecondsSinceEpoch
-                                        .toString(),
-                                    name: name,
-                                    type: _typeCode,
-                                    balance: init,
-                                    currency: _currency,
-                                    note: _noteCtrl.text.trim().isEmpty
-                                        ? null
-                                        : _noteCtrl.text.trim(),
-                                    gradient: _gradientFor(_typeCode),
-                                  );
-                                  setState(() => _wallets.insert(0, item));
-                                  _nameCtrl.clear();
-                                  _balanceCtrl.clear();
-                                  _noteCtrl.clear();
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text(t.walletAdded)));
-                                }
-                              },
-                              icon: const Icon(Icons.add),
-                              label: Text(t.createWalletButton),
-                              style: ElevatedButton.styleFrom(
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8)),
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 14),
-                              ),
-                            ),
-                          ),
-                        ]),
+                      const Icon(Icons.account_balance, color: Colors.black54),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Tổng số ví: ${wm.wallets.length}',
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
                       ),
-                    ]),
+                      if (wm.selectedWalletId != null)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(.06),
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: const Row(
+                            children: [
+                              Icon(Icons.check_circle,
+                                  size: 16, color: Colors.green),
+                              SizedBox(width: 6),
+                              Text('Đang chọn'),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Expanded(
+                child: ListView.separated(
+                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 80),
+                  itemCount: wm.wallets.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 8),
+                  itemBuilder: (_, i) {
+                    final w = wm.wallets[i];
+                    final isSelected = wm.selectedWalletId == w.id;
+
+                    final primary = _fromHex(w.colorHex);
+                    final onCard = _onColor(primary);
+
+                    return InkWell(
+                      onTap: () => wm.select(w.id),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 180),
+                        curve: Curves.easeOut,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: _cardGradient(primary),
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: isSelected
+                                ? Colors.white.withOpacity(.9)
+                                : Colors.white24,
+                            width: isSelected ? 2 : 1,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(.15),
+                              blurRadius: 18,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
+                        ),
+                        child: ListTile(
+                          contentPadding:
+                              const EdgeInsets.fromLTRB(14, 10, 8, 10),
+                          leading: CircleAvatar(
+                            backgroundColor: Colors.white.withOpacity(.18),
+                            child:
+                                Icon(_iconForType(w.type), color: Colors.white),
+                          ),
+                          title: Text(
+                            w.name,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              color: onCard,
+                            ),
+                          ),
+                          subtitle: Text(
+                            '${w.type} • VND',
+                            style: TextStyle(color: onCard.withOpacity(.85)),
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                fmt.format(w.balance),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w800,
+                                  color: onCard,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              PopupMenuButton<String>(
+                                color: Colors.white,
+                                onSelected: (value) {
+                                  if (value == 'select') {
+                                    wm.select(w.id);
+                                  } else if (value == 'edit') {
+                                    _showWalletForm(context, edit: w);
+                                  } else if (value == 'delete') {
+                                    _confirmDelete(context, w);
+                                  }
+                                },
+                                itemBuilder: (ctx) => [
+                                  if (!isSelected)
+                                    const PopupMenuItem(
+                                      value: 'select',
+                                      child: Text('Chọn ví này'),
+                                    ),
+                                  const PopupMenuItem(
+                                    value: 'edit',
+                                    child: Text('Chỉnh sửa'),
+                                  ),
+                                  const PopupMenuItem(
+                                    value: 'delete',
+                                    child: Text('Xóa'),
+                                  ),
+                                ],
+                                icon: Icon(Icons.more_vert, color: onCard),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ),
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: _openCreateSheet,
-          label: Text(t.addWalletFab),
-          icon: const Icon(Icons.add),
-          backgroundColor: const Color(0xFF34D399),
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),
     );
   }

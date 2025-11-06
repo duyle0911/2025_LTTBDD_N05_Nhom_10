@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../models/expense_model.dart';
+import '../models/wallet_model.dart';
 import 'login_screen.dart';
 import '../l10n/l10n_ext.dart';
 import 'change_password_screen.dart';
@@ -56,8 +58,13 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final m = context.watch<ExpenseModel>();
+    final wm = context.watch<WalletModel>();
     final currency = _currencyFmt(context);
     final t = context.l10n;
+
+    final wid = wm.selectedWalletId ??
+        (wm.wallets.isNotEmpty ? wm.wallets.first.id : null);
+    final walletBal = wid == null ? 0.0 : (wm.byId(wid)?.balance ?? 0.0);
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -202,7 +209,7 @@ class ProfileScreen extends StatelessWidget {
             _BalanceTile(
               title: t.currentBalance,
               subtitle: t.incomeMinusExpense,
-              balance: currency.format(m.balance),
+              balance: currency.format(walletBal),
               primary: _primaryDark,
               chip: _chip,
             ),

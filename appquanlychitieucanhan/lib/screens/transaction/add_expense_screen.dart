@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/expense_model.dart';
+import '../../models/wallet_model.dart';
 import '../../l10n/l10n_ext.dart';
 
 class AddExpenseScreen extends StatefulWidget {
@@ -84,6 +85,15 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     final t = context.l10n;
     if (!_formKey.currentState!.validate()) return;
 
+    final wm = context.read<WalletModel>();
+    final wid = wm.selectedWalletId ??
+        (wm.wallets.isNotEmpty ? wm.wallets.first.id : null);
+    if (wid == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Vui lòng tạo/chọn ví')));
+      return;
+    }
+
     final raw = _amountController.text.replaceAll(RegExp(r'[^0-9]'), '');
     final amount = double.tryParse(raw) ?? 0;
     final note = _noteController.text.trim();
@@ -95,7 +105,15 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     }
 
     final categoryLabel = _labelForCategory(context, _selectedCategoryKey);
-    context.read<ExpenseModel>().addExpense(amount, note, categoryLabel);
+
+    context.read<ExpenseModel>().addExpenseWithWallet(
+          wm,
+          amount,
+          note,
+          categoryLabel,
+          walletId: wid,
+          date: _selectedDate,
+        );
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(t.savedExpense(_currencyFmt.format(amount)))),
@@ -243,8 +261,9 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            textStyle:
-                                const TextStyle(fontWeight: FontWeight.bold),
+                            textStyle: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),

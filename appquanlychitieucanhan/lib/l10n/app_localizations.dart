@@ -128,6 +128,18 @@ abstract class AppLocalizations {
   /// **'Profile'**
   String get tabProfile;
 
+  /// No description provided for @tabAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get tabAbout;
+
+  /// No description provided for @tabWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet'**
+  String get tabWallet;
+
   /// No description provided for @homeOverviewTitle.
   ///
   /// In en, this message translates to:
@@ -1022,18 +1034,6 @@ abstract class AppLocalizations {
   /// **'Team Members'**
   String get about_members_title;
 
-  /// No description provided for @tabAbout.
-  ///
-  /// In en, this message translates to:
-  /// **'About'**
-  String get tabAbout;
-
-  /// No description provided for @tabWallet.
-  ///
-  /// In en, this message translates to:
-  /// **'Wallet'**
-  String get tabWallet;
-
   /// No description provided for @walletTitle.
   ///
   /// In en, this message translates to:
@@ -1249,6 +1249,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Income and Expense over time'**
   String get cashflowChartTitle;
+
+  /// No description provided for @incomeFullLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get incomeFullLabel;
+
+  /// No description provided for @expenseFullLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get expenseFullLabel;
+
+  /// No description provided for @balance.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get balance;
+
+  /// No description provided for @wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet'**
+  String get wallet;
+
+  /// No description provided for @addWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Add wallet'**
+  String get addWallet;
+
+  /// No description provided for @walletCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet created'**
+  String get walletCreated;
+
+  /// No description provided for @selectWalletHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a wallet'**
+  String get selectWalletHint;
 }
 
 class _AppLocalizationsDelegate

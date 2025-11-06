@@ -24,6 +24,12 @@ class AppLocalizationsVi extends AppLocalizations {
   String get tabProfile => 'Hồ sơ';
 
   @override
+  String get tabAbout => 'Giới thiệu';
+
+  @override
+  String get tabWallet => 'Ví tiền';
+
+  @override
   String get homeOverviewTitle => 'Tổng quan';
 
   @override
@@ -204,10 +210,10 @@ class AppLocalizationsVi extends AppLocalizations {
   String get noCategoryMatch => 'Không có danh mục phù hợp';
 
   @override
-  String get incomeFull => 'Thu nhập';
+  String get incomeFull => 'Thu';
 
   @override
-  String get expenseFull => 'Chi tiêu';
+  String get expenseFull => 'Chi';
 
   @override
   String get alreadyIncome => 'Đã thu';
@@ -488,12 +494,6 @@ class AppLocalizationsVi extends AppLocalizations {
   String get about_members_title => 'Thành viên nhóm';
 
   @override
-  String get tabAbout => 'Giới thiệu';
-
-  @override
-  String get tabWallet => 'Ví tiền';
-
-  @override
   String get walletTitle => 'Ví tiền';
 
   @override
@@ -605,4 +605,25 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get cashflowChartTitle => 'Biểu đồ thu chi theo thời gian';
+
+  @override
+  String get incomeFullLabel => 'Thu nhập';
+
+  @override
+  String get expenseFullLabel => 'Chi tiêu';
+
+  @override
+  String get balance => 'Số dư';
+
+  @override
+  String get wallet => 'Ví';
+
+  @override
+  String get addWallet => 'Thêm ví';
+
+  @override
+  String get walletCreated => 'Đã tạo ví';
+
+  @override
+  String get selectWalletHint => 'Chọn một ví';
 }

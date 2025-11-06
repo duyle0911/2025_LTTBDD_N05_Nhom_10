@@ -1,281 +1,347 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/expense_model.dart';
-import 'transaction_entry_screen.dart';
+import '../models/wallet_model.dart';
 import '../l10n/l10n_ext.dart';
 
-class TransactionCategoryScreen extends StatefulWidget {
+class TransactionEntryScreen extends StatefulWidget {
   final String type;
-  const TransactionCategoryScreen({super.key, required this.type});
+  final String category;
+
+  const TransactionEntryScreen({
+    super.key,
+    required this.type,
+    required this.category,
+  });
 
   @override
-  State<TransactionCategoryScreen> createState() =>
-      _TransactionCategoryScreenState();
+  State<TransactionEntryScreen> createState() => _TransactionEntryScreenState();
 }
 
-class _TransactionCategoryScreenState extends State<TransactionCategoryScreen> {
-  final _search = TextEditingController();
+class _TransactionEntryScreenState extends State<TransactionEntryScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _amount = TextEditingController();
+  final _note = TextEditingController();
+  DateTime _selectedDate = DateTime.now();
+  String? _selectedWalletId;
+
+  Color get _blue => const Color.fromARGB(255, 26, 150, 233);
+  Color get _purple => const Color.fromARGB(255, 71, 240, 130);
+  Color get _red => const Color.fromARGB(255, 7, 143, 227);
 
   bool get _isIncome => widget.type == 'income';
 
+  NumberFormat get _currencyFmt {
+    final lc = Localizations.localeOf(context).languageCode;
+    final name = lc == 'vi' ? 'vi_VN' : 'en_US';
+    return NumberFormat.currency(locale: name, symbol: '₫', decimalDigits: 0);
+  }
+
   @override
   void dispose() {
-    _search.dispose();
+    _amount.dispose();
+    _note.dispose();
     super.dispose();
   }
 
-  void _addCategory(BuildContext context) {
-    final t = context.l10n;
-    final controller = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text(t.addCategoryTitle),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: InputDecoration(
-            hintText: t.addCategoryHint,
-            border: const OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(t.cancel),
-          ),
-          FilledButton(
-            onPressed: () {
-              final text = controller.text.trim();
-              if (text.isEmpty) return;
-
-              final model = context.read<ExpenseModel>();
-              final current =
-                  _isIncome ? model.incomeCategories : model.expenseCategories;
-
-              final exists = current
-                  .map((e) => e.toLowerCase())
-                  .contains(text.toLowerCase());
-
-              Navigator.pop(context);
-
-              if (exists) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(t.categoryExists(text))),
-                );
-                return;
-              }
-
-              if (_isIncome) {
-                model.addIncomeCategory(text);
-              } else {
-                model.addExpenseCategory(text);
-              }
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(t.categoryAdded(text))),
-              );
-              setState(() {});
-            },
-            child: Text(t.add),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _renameCategory(BuildContext context, String oldName) {
-    final t = context.l10n;
-    final controller = TextEditingController(text: oldName);
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text(t.renameCategoryTitle),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: InputDecoration(
-            hintText: t.renameCategoryHint,
-            border: const OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(t.cancel),
-          ),
-          FilledButton(
-            onPressed: () {
-              final newName = controller.text.trim();
-              if (newName.isEmpty ||
-                  newName.toLowerCase() == oldName.toLowerCase()) {
-                Navigator.pop(context);
-                return;
-              }
-
-              final model = context.read<ExpenseModel>();
-              final current =
-                  _isIncome ? model.incomeCategories : model.expenseCategories;
-
-              final exists = current
-                  .map((e) => e.toLowerCase())
-                  .contains(newName.toLowerCase());
-
-              Navigator.pop(context);
-
-              if (exists) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(t.categoryExists(newName))),
-                );
-                return;
-              }
-
-              if (_isIncome) {
-                model.addIncomeCategory(newName);
-              } else {
-                model.addExpenseCategory(newName);
-              }
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(t.categoryAdded(newName))),
-              );
-              setState(() {});
-            },
-            child: Text(t.save),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _deleteCategory(BuildContext context, String name) async {
-    final t = context.l10n;
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text(t.deleteCategoryTitle),
-        content: Text(t.deleteCategoryConfirm(name)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(t.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(t.delete),
-          ),
-        ],
-      ),
-    );
-    if (ok == true) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(t.deleteDemoNotice)),
-      );
+  void _formatCurrencyOnType(String value) {
+    final digits = value.replaceAll(RegExp(r'[^0-9]'), '');
+    if (digits.isEmpty) {
+      _amount.value = const TextEditingValue(text: '');
+      return;
     }
+    final number = double.parse(digits);
+    final formatted = _currencyFmt.format(number).replaceAll('₫', '').trim();
+    _amount.value = TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
+    );
+  }
+
+  Future<void> _pickDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+      initialDate: _selectedDate,
+    );
+    if (picked != null) setState(() => _selectedDate = picked);
+  }
+
+  void _save() {
+    final t = context.l10n;
+    if (!_formKey.currentState!.validate()) return;
+
+    if (_selectedWalletId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Vui lòng chọn ví để thanh toán giao dịch')),
+      );
+      return;
+    }
+
+    final raw = _amount.text.replaceAll(RegExp(r'[^0-9]'), '');
+    final amount = double.tryParse(raw) ?? 0;
+    final note = _note.text.trim();
+
+    if (amount <= 0) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(t.amountMustBeGreaterThanZero)));
+      return;
+    }
+
+    final wm = context.read<WalletModel>();
+    context.read<ExpenseModel>().addTransactionWithWallet(
+          wm: wm,
+          type: widget.type,
+          amount: amount,
+          note: note,
+          category: widget.category,
+          walletId: _selectedWalletId!,
+          date: _selectedDate,
+        );
+
+    final msg = _isIncome
+        ? t.savedIncome(_currencyFmt.format(amount))
+        : t.savedExpense(_currencyFmt.format(amount));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
     final t = context.l10n;
-    final model = context.watch<ExpenseModel>();
-    final all = _isIncome ? model.incomeCategories : model.expenseCategories;
-    final query = _search.text.trim().toLowerCase();
-    final filtered = all.where((c) => c.toLowerCase().contains(query)).toList();
+    final accent = _isIncome ? Colors.green : Colors.redAccent;
+    final icon = _isIncome ? Icons.south_west : Icons.north_east;
 
-    final color = _isIncome ? Colors.green : Colors.redAccent;
-    final icon = _isIncome ? Icons.arrow_downward : Icons.arrow_upward;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-            _isIncome ? t.incomeCategoriesTitle : t.expenseCategoriesTitle),
-        backgroundColor: color,
-        centerTitle: true,
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [_blue, _purple, _red],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _addCategory(context),
-        backgroundColor: color,
-        icon: const Icon(Icons.add),
-        label: Text(t.addCategoryFAB),
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: TextField(
-              controller: _search,
-              decoration: InputDecoration(
-                hintText: t.searchCategoryHint,
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: query.isNotEmpty
-                    ? IconButton(
-                        onPressed: () {
-                          _search.clear();
-                          setState(() {});
-                        },
-                        icon: const Icon(Icons.clear),
-                      )
-                    : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          title: Text(
+              '${_isIncome ? t.incomeShort : t.expenseShort} - ${widget.category}'),
+          centerTitle: true,
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          flexibleSpace: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [_blue, _purple, _red],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-              onChanged: (_) => setState(() {}),
             ),
           ),
-          Expanded(
-            child: filtered.isEmpty
-                ? Center(child: Text(t.noCategoryMatch))
-                : ListView.builder(
-                    itemCount: filtered.length,
-                    itemBuilder: (_, i) {
-                      final name = filtered[i];
-                      return Card(
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+        ),
+        body: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(.92),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: accent.withOpacity(0.12),
+                    child: Icon(icon, color: accent),
+                  ),
+                  title: Text(
+                    _isIncome ? t.recordIncome : t.recordExpense,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  subtitle: Text('${t.category}: ${widget.category}'),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Card(
+                color: Colors.white.withOpacity(.96),
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Consumer<WalletModel>(
+                    builder: (context, wm, _) {
+                      return DropdownButtonFormField<String>(
+                        value: _selectedWalletId,
+                        decoration: InputDecoration(
+                          labelText: 'Chọn ví thanh toán',
+                          prefixIcon: const Icon(Icons.wallet_outlined),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                        elevation: 1.5,
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: color.withOpacity(0.12),
-                            child: Icon(icon, color: color),
-                          ),
-                          title: Text(
-                            name,
-                            style: const TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                          trailing: PopupMenuButton<String>(
-                            onSelected: (v) {
-                              if (v == 'rename') _renameCategory(context, name);
-                              if (v == 'delete') _deleteCategory(context, name);
-                            },
-                            itemBuilder: (context) => [
-                              PopupMenuItem(
-                                  value: 'rename', child: Text(t.renameDemo)),
-                              PopupMenuItem(
-                                  value: 'delete', child: Text(t.deleteDemo)),
-                            ],
-                          ),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => TransactionEntryScreen(
-                                  type: widget.type,
-                                  category: name,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
+                        items: [
+                          for (final w in wm.wallets)
+                            DropdownMenuItem(
+                              value: w.id,
+                              child: Text(w.name),
+                            ),
+                        ],
+                        onChanged: (v) => setState(() => _selectedWalletId = v),
+                        validator: (v) => v == null ? 'Vui lòng chọn ví' : null,
                       );
                     },
                   ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Card(
+                color: Colors.white.withOpacity(.96),
+                shadowColor: Colors.black26,
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          controller: _amount,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'[0-9.,]')),
+                          ],
+                          decoration: InputDecoration(
+                            labelText: t.amount,
+                            hintText: t.amountHint,
+                            prefixIcon: const Icon(Icons.attach_money),
+                            suffixText: t.vndSuffix,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          validator: (v) {
+                            final raw =
+                                (v ?? '').replaceAll(RegExp(r'[^0-9]'), '');
+                            if (raw.isEmpty) return t.pleaseEnterAmount;
+                            final d = double.tryParse(raw);
+                            if (d == null) return t.amountInvalid;
+                            if (d <= 0) return t.amountMustBeGreaterThanZero;
+                            return null;
+                          },
+                          onChanged: _formatCurrencyOnType,
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _note,
+                          maxLines: 2,
+                          textInputAction: TextInputAction.done,
+                          decoration: InputDecoration(
+                            labelText: t.noteOptional,
+                            prefixIcon: const Icon(Icons.note_alt_outlined),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        InkWell(
+                          onTap: _pickDate,
+                          borderRadius: BorderRadius.circular(12),
+                          child: InputDecorator(
+                            decoration: InputDecoration(
+                              labelText: t.date,
+                              prefixIcon: const Icon(Icons.event),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  '${_selectedDate.day.toString().padLeft(2, '0')}/${_selectedDate.month.toString().padLeft(2, '0')}/${_selectedDate.year}',
+                                ),
+                                const Icon(Icons.keyboard_arrow_down),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        SizedBox(
+                          width: double.infinity,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [_blue, _purple, _red],
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: ElevatedButton.icon(
+                              onPressed: _save,
+                              icon: const Icon(Icons.save_rounded),
+                              label: Text(t.saveTransaction),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.transparent,
+                                shadowColor: Colors.transparent,
+                                foregroundColor: Colors.white,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                textStyle: const TextStyle(
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(.92),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [50000, 100000, 200000, 500000, 1000000].map((v) {
+                    final label =
+                        _currencyFmt.format(v).replaceAll('₫', '').trim();
+                    return ActionChip(
+                      label: Text(label),
+                      backgroundColor: Colors.white,
+                      shape: const StadiumBorder(
+                        side: BorderSide(color: Colors.black12),
+                      ),
+                      onPressed: () {
+                        _amount.text = label;
+                        _amount.selection = TextSelection.collapsed(
+                          offset: _amount.text.length,
+                        );
+                      },
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-        ],
+        ),
       ),
     );
   }

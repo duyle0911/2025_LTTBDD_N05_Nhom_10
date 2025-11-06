@@ -7,6 +7,8 @@
   "tabTransactions": "Giao dịch",
   "tabStats": "Thống kê",
   "tabProfile": "Hồ sơ",
+  "tabAbout": "Giới thiệu",
+  "tabWallet": "Ví tiền",
 
   "homeOverviewTitle": "Tổng quan",
   "addIncomeUpper": "THÊM THU",
@@ -190,8 +192,7 @@
 
   "about_title": "Về Chúng Tôi",
   "about_members_title": "Thành viên nhóm",
-  "tabAbout": "Giới thiệu",
-  "tabWallet": "Ví tiền",
+
   "walletTitle": "Ví tiền",
   "chooseWalletTooltip": "Chọn ví",
   "chooseWalletTitle": "Chọn ví",
@@ -236,6 +237,12 @@
   "addWalletFab": "Thêm ví",
   "noWalletsHint": "Chưa có ví nào. Hãy tạo ví đầu tiên của bạn nhé!",
   "cashflowChartTitle": "Biểu đồ thu chi theo thời gian",
-  "incomeFull": "Thu nhập",
-  "expenseFull": "Chi tiêu"
+  "incomeFullLabel": "Thu nhập",
+  "expenseFullLabel": "Chi tiêu",
+  "balance": "Số dư",
+  "wallet": "Ví",
+  "addWallet": "Thêm ví",
+  "walletCreated": "Đã tạo ví",
+
+  "selectWalletHint": "Chọn một ví"
 }
