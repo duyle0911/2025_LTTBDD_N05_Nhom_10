@@ -59,14 +59,14 @@ class WalletModel extends ChangeNotifier {
   String? _selectedWalletId;
 
   static const List<String> _palette = [
-    '#1976D2',
-    '#E53935',
-    '#1E88E5',
-    '#D32F2F',
-    '#2196F3',
-    '#F44336',
-    '#64B5F6',
-    '#EF5350',
+    '#90CAF9', 
+    '#A5D6A7', 
+    '#80CBC4',
+    '#FFCC80', 
+    '#FFF59D', 
+    '#CE93D8', 
+    '#F48FB1', 
+    '#B0BEC5',
   ];
 
   List<WalletItem> get wallets => List.unmodifiable(_wallets);
