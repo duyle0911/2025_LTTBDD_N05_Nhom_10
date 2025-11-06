@@ -231,12 +231,11 @@ class _WalletScreenState extends State<WalletScreen> {
           label: const Text('Thêm ví'),
         ),
         body: SafeArea(
-          child: Column(
-            children: [
-              const SizedBox(height: 8),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Container(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+            child: Column(
+              children: [
+                Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(.95),
@@ -272,111 +271,121 @@ class _WalletScreenState extends State<WalletScreen> {
                     ],
                   ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              Expanded(
-                child: ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 80),
-                  itemCount: wm.wallets.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 8),
-                  itemBuilder: (_, i) {
-                    final w = wm.wallets[i];
-                    final isSelected = wm.selectedWalletId == w.id;
+                const SizedBox(height: 12),
 
-                    final primary = _fromHex(w.colorHex);
-                    final onCard = _onColor(primary);
-
-                    return InkWell(
-                      onTap: () => wm.select(w.id),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 180),
-                        curve: Curves.easeOut,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: _cardGradient(primary),
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: isSelected
-                                ? Colors.white.withOpacity(.9)
-                                : Colors.white24,
-                            width: isSelected ? 2 : 1,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(.15),
-                              blurRadius: 18,
-                              offset: const Offset(0, 8),
-                            ),
-                          ],
-                        ),
-                        child: ListTile(
-                          contentPadding:
-                              const EdgeInsets.fromLTRB(14, 10, 8, 10),
-                          leading: CircleAvatar(
-                            backgroundColor: Colors.white.withOpacity(.18),
-                            child:
-                                Icon(_iconForType(w.type), color: Colors.white),
-                          ),
-                          title: Text(
-                            w.name,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w700,
-                              color: onCard,
-                            ),
-                          ),
-                          subtitle: Text(
-                            '${w.type} • VND',
-                            style: TextStyle(color: onCard.withOpacity(.85)),
-                          ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                fmt.format(w.balance),
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w800,
-                                  color: onCard,
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              PopupMenuButton<String>(
-                                color: Colors.white,
-                                onSelected: (value) {
-                                  if (value == 'select') {
-                                    wm.select(w.id);
-                                  } else if (value == 'edit') {
-                                    _showWalletForm(context, edit: w);
-                                  } else if (value == 'delete') {
-                                    _confirmDelete(context, w);
-                                  }
-                                },
-                                itemBuilder: (ctx) => [
-                                  if (!isSelected)
-                                    const PopupMenuItem(
-                                      value: 'select',
-                                      child: Text('Chọn ví này'),
-                                    ),
-                                  const PopupMenuItem(
-                                    value: 'edit',
-                                    child: Text('Chỉnh sửa'),
-                                  ),
-                                  const PopupMenuItem(
-                                    value: 'delete',
-                                    child: Text('Xóa'),
-                                  ),
-                                ],
-                                icon: Icon(Icons.more_vert, color: onCard),
-                              ),
-                            ],
-                          ),
-                        ),
+                
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(14, 18, 14, 18),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(28),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(.20),
+                        blurRadius: 20,
+                        offset: const Offset(0, 6),
                       ),
-                    );
-                  },
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      for (int i = 0; i < wm.wallets.length; i++) ...[
+                        _buildWalletItem(wm.wallets[i], fmt),
+                        if (i < wm.wallets.length - 1)
+                          const SizedBox(height: 10),
+                      ],
+                    ],
+                  ),
                 ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWalletItem(WalletItem w, NumberFormat fmt) {
+    final wm = context.watch<WalletModel>();
+    final isSelected = wm.selectedWalletId == w.id;
+    final primary = _fromHex(w.colorHex);
+    final onCard = _onColor(primary);
+
+    return InkWell(
+      onTap: () => wm.select(w.id),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: _cardGradient(primary),
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected
+                ? Colors.white.withOpacity(.9)
+                : Colors.white24,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: ListTile(
+          contentPadding: const EdgeInsets.fromLTRB(14, 10, 8, 10),
+          leading: CircleAvatar(
+            backgroundColor: Colors.white.withOpacity(.18),
+            child: Icon(_iconForType(w.type), color: Colors.white),
+          ),
+          title: Text(
+            w.name,
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              color: onCard,
+            ),
+          ),
+          subtitle: Text(
+            '${w.type} • VND',
+            style: TextStyle(color: onCard.withOpacity(.85)),
+          ),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                fmt.format(w.balance),
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  color: onCard,
+                ),
+              ),
+              const SizedBox(width: 6),
+              PopupMenuButton<String>(
+                color: Colors.white,
+                onSelected: (value) {
+                  if (value == 'select') {
+                    wm.select(w.id);
+                  } else if (value == 'edit') {
+                    _showWalletForm(context, edit: w);
+                  } else if (value == 'delete') {
+                    _confirmDelete(context, w);
+                  }
+                },
+                itemBuilder: (ctx) => [
+                  if (!isSelected)
+                    const PopupMenuItem(
+                      value: 'select',
+                      child: Text('Chọn ví này'),
+                    ),
+                  const PopupMenuItem(
+                    value: 'edit',
+                    child: Text('Chỉnh sửa'),
+                  ),
+                  const PopupMenuItem(
+                    value: 'delete',
+                    child: Text('Xóa'),
+                  ),
+                ],
+                icon: Icon(Icons.more_vert, color: onCard),
               ),
             ],
           ),
