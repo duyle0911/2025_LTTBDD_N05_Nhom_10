@@ -623,4 +623,82 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get selectWalletHint => 'Select a wallet';
+
+  @override
+  String get walletManageTitle => 'Wallets';
+
+  @override
+  String get walletCreate => 'Create wallet';
+
+  @override
+  String get walletEdit => 'Edit wallet';
+
+  @override
+  String get fieldWalletName => 'Wallet name';
+
+  @override
+  String get fieldWalletType => 'Wallet type';
+
+  @override
+  String get fieldWalletTypeAccount => 'Account type';
+
+  @override
+  String get fieldBalanceVnd => 'Balance (VND)';
+
+  @override
+  String get fieldInitialBalance => 'Initial balance';
+
+  @override
+  String get fieldCurrency => 'Currency';
+
+  @override
+  String get fieldDescriptionOptional => 'Description (optional)';
+
+  @override
+  String get inputWalletName => 'Enter wallet name';
+
+  @override
+  String get invalidBalance => 'Invalid balance';
+
+  @override
+  String get create => 'Create';
+
+  @override
+  String get saveChanges => 'Save changes';
+
+  @override
+  String get deleteWallet => 'Delete wallet';
+
+  @override
+  String deleteWalletConfirm(Object name) {
+    return 'Are you sure you want to delete \"$name\"?';
+  }
+
+  @override
+  String get createWalletPopup => 'Create wallet (popup)';
+
+  @override
+  String totalWallets(Object count) {
+    return 'Total wallets: $count';
+  }
+
+  @override
+  String get selected => 'Selected';
+
+  @override
+  String get newBadge => 'NEW';
+
+  @override
+  String get createWalletInlineTitle => 'Create new wallet';
+
+  @override
+  String get createWalletCta => 'Create wallet';
+
+  @override
+  String createdWallet(Object amount) {
+    return 'Wallet created ($amount)';
+  }
+
+  @override
+  String get chooseThisWallet => 'Choose this wallet';
 }

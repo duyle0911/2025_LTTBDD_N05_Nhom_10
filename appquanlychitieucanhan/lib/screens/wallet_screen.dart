@@ -1,7 +1,9 @@
+// lib/screens/wallet_screen.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/wallet_model.dart';
+import '../l10n/l10n_ext.dart';
 
 class WalletScreen extends StatefulWidget {
   const WalletScreen({super.key});
@@ -15,7 +17,7 @@ class _WalletScreenState extends State<WalletScreen> {
   Color get _purple => const Color.fromARGB(255, 71, 240, 130);
   Color get _red => const Color.fromARGB(255, 7, 143, 227);
 
-  final _typesVN = const ['Tiền mặt', 'Ngân hàng', 'Thẻ tín dụng', 'Tiết kiệm'];
+  final _types = const ['cash', 'bank', 'credit', 'savings'];
 
   NumberFormat _fmtVND() {
     final lc = Localizations.localeOf(context).languageCode;
@@ -40,10 +42,42 @@ class _WalletScreenState extends State<WalletScreen> {
         base.withOpacity(.78),
       ];
 
+  String _typeLabel(String code) {
+    final t = context.l10n;
+    switch (code) {
+      case 'cash':
+        return t.walletTypeCash;
+      case 'bank':
+        return t.walletTypeBank;
+      case 'credit':
+        return t.walletTypeCredit;
+      case 'savings':
+        return t.walletTypeSavings;
+      default:
+        return code;
+    }
+  }
+
+  IconData _iconForType(String code) {
+    switch (code) {
+      case 'cash':
+        return Icons.account_balance_wallet;
+      case 'bank':
+        return Icons.account_balance;
+      case 'credit':
+        return Icons.credit_card;
+      case 'savings':
+        return Icons.savings;
+      default:
+        return Icons.account_balance_wallet;
+    }
+  }
+
   Future<void> _showWalletForm(BuildContext context, {WalletItem? edit}) async {
+    final t = context.l10n;
     final wm = context.read<WalletModel>();
     final name = TextEditingController(text: edit?.name ?? '');
-    String type = edit?.type ?? _typesVN.first;
+    String type = edit?.type ?? _types.first;
     final balance = TextEditingController(
       text: edit != null
           ? _fmtVND().format(edit.balance).replaceAll(RegExp(r'[^\d,.]'), '')
@@ -69,7 +103,7 @@ class _WalletScreenState extends State<WalletScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  edit == null ? 'Tạo ví' : 'Chỉnh sửa ví',
+                  edit == null ? t.walletCreate : t.walletEdit,
                   style: Theme.of(ctx)
                       .textTheme
                       .titleMedium
@@ -79,23 +113,27 @@ class _WalletScreenState extends State<WalletScreen> {
                 TextFormField(
                   controller: name,
                   decoration: InputDecoration(
-                    labelText: 'Tên ví',
+                    labelText: t.fieldWalletName,
                     prefixIcon: const Icon(Icons.badge_outlined),
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12)),
                   ),
-                  validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? 'Nhập tên ví' : null,
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? t.inputWalletName
+                      : null,
                 ),
                 const SizedBox(height: 10),
                 DropdownButtonFormField<String>(
                   value: type,
-                  items: _typesVN
-                      .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                  items: _types
+                      .map((e) => DropdownMenuItem(
+                            value: e,
+                            child: Text(_typeLabel(e)),
+                          ))
                       .toList(),
-                  onChanged: (v) => setState(() => type = v ?? _typesVN.first),
+                  onChanged: (v) => setState(() => type = v ?? _types.first),
                   decoration: InputDecoration(
-                    labelText: 'Loại ví',
+                    labelText: t.fieldWalletType,
                     prefixIcon: const Icon(Icons.category_outlined),
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12)),
@@ -106,7 +144,7 @@ class _WalletScreenState extends State<WalletScreen> {
                   controller: balance,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
-                    labelText: 'Số dư (VND)',
+                    labelText: t.fieldBalanceVnd,
                     hintText: '0',
                     prefixIcon:
                         const Icon(Icons.account_balance_wallet_outlined),
@@ -117,7 +155,7 @@ class _WalletScreenState extends State<WalletScreen> {
                     if (v == null || v.trim().isEmpty) return null;
                     final raw = v.replaceAll(RegExp(r'[^0-9.]'), '');
                     final d = double.tryParse(raw);
-                    if (d == null) return 'Số dư không hợp lệ';
+                    if (d == null) return t.invalidBalance;
                     return null;
                   },
                 ),
@@ -150,7 +188,7 @@ class _WalletScreenState extends State<WalletScreen> {
                       Navigator.pop(ctx);
                     },
                     icon: const Icon(Icons.save_rounded),
-                    label: Text(edit == null ? 'Tạo ví' : 'Lưu thay đổi'),
+                    label: Text(edit == null ? t.create : t.saveChanges),
                   ),
                 ),
               ],
@@ -162,19 +200,20 @@ class _WalletScreenState extends State<WalletScreen> {
   }
 
   Future<void> _confirmDelete(BuildContext context, WalletItem w) async {
+    final t = context.l10n;
     final ok = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Xóa ví'),
-        content: Text('Bạn có chắc muốn xóa ví "${w.name}"?'),
+        title: Text(t.deleteWallet),
+        content: Text(t.deleteWalletConfirm(w.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Hủy'),
+            child: Text(t.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Xóa'),
+            child: Text(t.delete),
           ),
         ],
       ),
@@ -182,30 +221,15 @@ class _WalletScreenState extends State<WalletScreen> {
     if (ok == true) context.read<WalletModel>().removeWallet(w.id);
   }
 
-  IconData _iconForType(String vnType) {
-    switch (vnType) {
-      case 'Tiền mặt':
-        return Icons.account_balance_wallet;
-      case 'Ngân hàng':
-        return Icons.account_balance;
-      case 'Thẻ tín dụng':
-        return Icons.credit_card;
-      case 'Tiết kiệm':
-        return Icons.savings;
-      default:
-        return Icons.account_balance_wallet;
-    }
-  }
-
   final _newName = TextEditingController();
   final _newBalance = TextEditingController(text: '');
-  String _newType = 'Tiết kiệm';
+  String _newType = 'savings';
   final _newDesc = TextEditingController();
 
   void _resetInlineForm() {
     setState(() {
       _newName.clear();
-      _newType = 'Tiết kiệm';
+      _newType = 'savings';
       _newBalance.clear();
       _newDesc.clear();
     });
@@ -218,10 +242,11 @@ class _WalletScreenState extends State<WalletScreen> {
   }
 
   void _createNewWalletInline() {
+    final t = context.l10n;
     final name = _newName.text.trim();
     if (name.isEmpty) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Nhập tên ví')));
+          .showSnackBar(SnackBar(content: Text(t.inputWalletName)));
       return;
     }
     final initBal = _parseBalance(_newBalance.text);
@@ -234,12 +259,13 @@ class _WalletScreenState extends State<WalletScreen> {
     wm.select(id);
     _resetInlineForm();
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Đã tạo ví mới (${_fmtVND().format(initBal)})')),
+      SnackBar(content: Text(t.createdWallet(_fmtVND().format(initBal)))),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = context.l10n;
     final wm = context.watch<WalletModel>();
     final fmt = _fmtVND();
 
@@ -254,13 +280,13 @@ class _WalletScreenState extends State<WalletScreen> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
-          title: const Text('Quản lý ví'),
+          title: Text(t.walletManageTitle),
           centerTitle: true,
           backgroundColor: Colors.transparent,
           elevation: 0,
           actions: [
             IconButton(
-              tooltip: 'Tạo ví (popup)',
+              tooltip: t.createWalletPopup,
               onPressed: () => _showWalletForm(context),
               icon: const Icon(Icons.add),
             ),
@@ -282,9 +308,10 @@ class _WalletScreenState extends State<WalletScreen> {
                       const Icon(Icons.account_balance, color: Colors.black54),
                       const SizedBox(width: 8),
                       Expanded(
-                        child: Text('Tổng số ví: ${wm.wallets.length}',
-                            style:
-                                const TextStyle(fontWeight: FontWeight.w600)),
+                        child: Text(
+                          t.totalWallets(wm.wallets.length),
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
                       ),
                       if (wm.selectedWalletId != null)
                         Container(
@@ -294,12 +321,12 @@ class _WalletScreenState extends State<WalletScreen> {
                             color: Colors.black.withOpacity(.06),
                             borderRadius: BorderRadius.circular(999),
                           ),
-                          child: const Row(
+                          child: Row(
                             children: [
-                              Icon(Icons.check_circle,
+                              const Icon(Icons.check_circle,
                                   size: 16, color: Colors.green),
-                              SizedBox(width: 6),
-                              Text('Đang chọn'),
+                              const SizedBox(width: 6),
+                              Text(t.selected),
                             ],
                           ),
                         ),
@@ -331,20 +358,24 @@ class _WalletScreenState extends State<WalletScreen> {
                               color: Colors.green.withOpacity(.15),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: const Text('NEW',
-                                style: TextStyle(
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.w700)),
+                            child: Text(
+                              t.newBadge,
+                              style: const TextStyle(
+                                  color: Colors.green,
+                                  fontWeight: FontWeight.w700),
+                            ),
                           ),
                           const SizedBox(width: 10),
-                          const Expanded(
-                            child: Text('Tạo ví mới',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w700, fontSize: 16)),
+                          Expanded(
+                            child: Text(
+                              t.createWalletInlineTitle,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.w700, fontSize: 16),
+                            ),
                           ),
                           TextButton(
                             onPressed: _resetInlineForm,
-                            child: const Text('Đặt lại'),
+                            child: Text(t.reset),
                           ),
                         ],
                       ),
@@ -352,7 +383,7 @@ class _WalletScreenState extends State<WalletScreen> {
                       TextField(
                         controller: _newName,
                         decoration: InputDecoration(
-                          labelText: 'Tên ví',
+                          labelText: t.fieldWalletName,
                           prefixIcon: const Icon(Icons.badge_outlined),
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12)),
@@ -361,14 +392,14 @@ class _WalletScreenState extends State<WalletScreen> {
                       const SizedBox(height: 10),
                       DropdownButtonFormField<String>(
                         value: _newType,
-                        items: _typesVN
-                            .map((e) =>
-                                DropdownMenuItem(value: e, child: Text(e)))
+                        items: _types
+                            .map((e) => DropdownMenuItem(
+                                value: e, child: Text(_typeLabel(e))))
                             .toList(),
                         onChanged: (v) =>
                             setState(() => _newType = v ?? _newType),
                         decoration: InputDecoration(
-                          labelText: 'Loại tài khoản',
+                          labelText: t.fieldWalletTypeAccount,
                           prefixIcon: const Icon(Icons.category_outlined),
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12)),
@@ -379,7 +410,7 @@ class _WalletScreenState extends State<WalletScreen> {
                         controller: _newBalance,
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
-                          labelText: 'Số dư',
+                          labelText: t.fieldInitialBalance,
                           hintText: '0',
                           suffixText: 'VND',
                           prefixIcon:
@@ -396,7 +427,7 @@ class _WalletScreenState extends State<WalletScreen> {
                         ],
                         onChanged: null,
                         decoration: InputDecoration(
-                          labelText: 'Đơn vị tiền tệ',
+                          labelText: t.fieldCurrency,
                           prefixIcon: const Icon(Icons.payments_outlined),
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12)),
@@ -406,7 +437,7 @@ class _WalletScreenState extends State<WalletScreen> {
                       TextField(
                         controller: _newDesc,
                         decoration: InputDecoration(
-                          labelText: 'Mô tả (tuỳ chọn)',
+                          labelText: t.fieldDescriptionOptional,
                           prefixIcon: const Icon(Icons.notes_outlined),
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12)),
@@ -419,7 +450,7 @@ class _WalletScreenState extends State<WalletScreen> {
                         child: FilledButton.icon(
                           onPressed: _createNewWalletInline,
                           icon: const Icon(Icons.add),
-                          label: const Text('Tạo ví'),
+                          label: Text(t.createWalletCta),
                           style: FilledButton.styleFrom(
                             backgroundColor: const Color(0xFF00B894),
                           ),
@@ -437,6 +468,7 @@ class _WalletScreenState extends State<WalletScreen> {
   }
 
   Widget _buildWalletItem(WalletItem w, NumberFormat fmt) {
+    final t = context.l10n;
     final wm = context.watch<WalletModel>();
     final isSelected = wm.selectedWalletId == w.id;
     final primary = _fromHex(w.colorHex);
@@ -473,7 +505,7 @@ class _WalletScreenState extends State<WalletScreen> {
             ),
           ),
           subtitle: Text(
-            '${w.type} • VND',
+            '${_typeLabel(w.type)} • VND',
             style: TextStyle(color: onCard.withOpacity(.85)),
           ),
           trailing: Row(
@@ -500,17 +532,17 @@ class _WalletScreenState extends State<WalletScreen> {
                 },
                 itemBuilder: (ctx) => [
                   if (!isSelected)
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'select',
-                      child: Text('Chọn ví này'),
+                      child: Text(t.chooseThisWallet),
                     ),
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'edit',
-                    child: Text('Chỉnh sửa'),
+                    child: Text(t.edit),
                   ),
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'delete',
-                    child: Text('Xóa'),
+                    child: Text(t.delete),
                   ),
                 ],
                 icon: Icon(Icons.more_vert, color: onCard),

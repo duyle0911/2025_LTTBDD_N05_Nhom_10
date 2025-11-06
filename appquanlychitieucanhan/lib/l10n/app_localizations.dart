@@ -1291,6 +1291,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Select a wallet'**
   String get selectWalletHint;
+
+  /// No description provided for @walletManageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallets'**
+  String get walletManageTitle;
+
+  /// No description provided for @walletCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create wallet'**
+  String get walletCreate;
+
+  /// No description provided for @walletEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit wallet'**
+  String get walletEdit;
+
+  /// No description provided for @fieldWalletName.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet name'**
+  String get fieldWalletName;
+
+  /// No description provided for @fieldWalletType.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet type'**
+  String get fieldWalletType;
+
+  /// No description provided for @fieldWalletTypeAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account type'**
+  String get fieldWalletTypeAccount;
+
+  /// No description provided for @fieldBalanceVnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance (VND)'**
+  String get fieldBalanceVnd;
+
+  /// No description provided for @fieldInitialBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Initial balance'**
+  String get fieldInitialBalance;
+
+  /// No description provided for @fieldCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get fieldCurrency;
+
+  /// No description provided for @fieldDescriptionOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Description (optional)'**
+  String get fieldDescriptionOptional;
+
+  /// No description provided for @inputWalletName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter wallet name'**
+  String get inputWalletName;
+
+  /// No description provided for @invalidBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid balance'**
+  String get invalidBalance;
+
+  /// No description provided for @create.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get create;
+
+  /// No description provided for @saveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get saveChanges;
+
+  /// No description provided for @deleteWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete wallet'**
+  String get deleteWallet;
+
+  /// No description provided for @deleteWalletConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete \"{name}\"?'**
+  String deleteWalletConfirm(Object name);
+
+  /// No description provided for @createWalletPopup.
+  ///
+  /// In en, this message translates to:
+  /// **'Create wallet (popup)'**
+  String get createWalletPopup;
+
+  /// No description provided for @totalWallets.
+  ///
+  /// In en, this message translates to:
+  /// **'Total wallets: {count}'**
+  String totalWallets(Object count);
+
+  /// No description provided for @selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected'**
+  String get selected;
+
+  /// No description provided for @newBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'NEW'**
+  String get newBadge;
+
+  /// No description provided for @createWalletInlineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create new wallet'**
+  String get createWalletInlineTitle;
+
+  /// No description provided for @createWalletCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Create wallet'**
+  String get createWalletCta;
+
+  /// No description provided for @createdWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet created ({amount})'**
+  String createdWallet(Object amount);
+
+  /// No description provided for @chooseThisWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose this wallet'**
+  String get chooseThisWallet;
 }
 
 class _AppLocalizationsDelegate

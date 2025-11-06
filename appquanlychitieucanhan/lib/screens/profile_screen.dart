@@ -239,9 +239,9 @@ class ProfileScreen extends StatelessWidget {
                   const Divider(height: 1),
                   ListTile(
                     leading: const Icon(Icons.logout, color: Colors.red),
-                    title: const Text(
-                      'Đăng xuất',
-                      style: TextStyle(color: Colors.redAccent),
+                    title: Text(
+                      t.logout,
+                      style: const TextStyle(color: Colors.redAccent),
                     ),
                     onTap: () => _confirmLogout(context),
                   ),

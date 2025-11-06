@@ -626,4 +626,82 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get selectWalletHint => 'Chọn một ví';
+
+  @override
+  String get walletManageTitle => 'Quản lý ví';
+
+  @override
+  String get walletCreate => 'Tạo ví';
+
+  @override
+  String get walletEdit => 'Chỉnh sửa ví';
+
+  @override
+  String get fieldWalletName => 'Tên ví';
+
+  @override
+  String get fieldWalletType => 'Loại ví';
+
+  @override
+  String get fieldWalletTypeAccount => 'Loại tài khoản';
+
+  @override
+  String get fieldBalanceVnd => 'Số dư (VND)';
+
+  @override
+  String get fieldInitialBalance => 'Số dư ban đầu';
+
+  @override
+  String get fieldCurrency => 'Đơn vị tiền tệ';
+
+  @override
+  String get fieldDescriptionOptional => 'Mô tả (tuỳ chọn)';
+
+  @override
+  String get inputWalletName => 'Nhập tên ví';
+
+  @override
+  String get invalidBalance => 'Số dư không hợp lệ';
+
+  @override
+  String get create => 'Tạo';
+
+  @override
+  String get saveChanges => 'Lưu thay đổi';
+
+  @override
+  String get deleteWallet => 'Xóa ví';
+
+  @override
+  String deleteWalletConfirm(Object name) {
+    return 'Bạn có chắc muốn xóa \"$name\"?';
+  }
+
+  @override
+  String get createWalletPopup => 'Tạo ví (popup)';
+
+  @override
+  String totalWallets(Object count) {
+    return 'Tổng số ví: $count';
+  }
+
+  @override
+  String get selected => 'Đang chọn';
+
+  @override
+  String get newBadge => 'MỚI';
+
+  @override
+  String get createWalletInlineTitle => 'Tạo ví mới';
+
+  @override
+  String get createWalletCta => 'Tạo ví';
+
+  @override
+  String createdWallet(Object amount) {
+    return 'Đã tạo ví mới ($amount)';
+  }
+
+  @override
+  String get chooseThisWallet => 'Chọn ví này';
 }
