@@ -11,8 +11,9 @@ PRAGMA foreign_keys = ON;
 CREATE TABLE IF NOT EXISTS wallets (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
-  type TEXT NOT NULL CHECK (type IN ('cash','bank','e-wallet','other')),
+  type TEXT NOT NULL CHECK (type IN ('cash','bank','credit','savings','other')),
   currency TEXT NOT NULL DEFAULT 'VND',
+  color_hex TEXT DEFAULT '#1976D2',
   balance REAL NOT NULL DEFAULT 0,
   created_at INTEGER NOT NULL
 );
@@ -43,21 +44,19 @@ CREATE INDEX IF NOT EXISTS idx_tx_category_time ON transactions(category_id, hap
 ''';
 
 const String _SEED_FALLBACK = r'''
-INSERT OR IGNORE INTO wallets(id,name,type,currency,balance,created_at) VALUES
-('w_cash','Tiền mặt','cash','VND',500000, strftime('%s','now')),
-('w_bank','Vietcombank','bank','VND',2500000, strftime('%s','now'));
+INSERT OR IGNORE INTO wallets(id,name,type,currency,color_hex,balance,created_at) VALUES
+('w_cash','Tiền mặt','cash','VND','#1976D2',0, strftime('%s','now')),
+('w_bank','Ngân hàng','bank','VND','#90CAF9',0, strftime('%s','now'));
 
 INSERT OR IGNORE INTO categories(id,name,type,icon,color_hex) VALUES
-('c_food','Ăn uống','expense','restaurant','FF5A5F'),
-('c_bill','Hóa đơn','expense','receipt','FFA500'),
-('c_move','Di chuyển','expense','directions_bus','00B894'),
-('c_salary','Lương','income','payments','2ECC71'),
-('c_bonus','Thưởng','income','stars','3498DB');
-
-INSERT OR IGNORE INTO transactions(id, wallet_id, category_id, amount, note, happened_at, is_income, created_at) VALUES
-('t1','w_cash','c_food',45000,'Bánh mì + trà đá', strftime('%s','now','-1 day'),0,strftime('%s','now')),
-('t2','w_bank','c_bill',120000,'Điện thoại', strftime('%s','now','-2 day'),0,strftime('%s','now')),
-('t3','w_bank','c_salary',8000000,'Lương tháng 10', strftime('%s','now','-10 day'),1,strftime('%s','now'));
+('c_food','Ăn uống','expense','restaurant','E91E63'),
+('c_move','Đi lại','expense','directions_bus','9C27B0'),
+('c_bill','Hóa đơn','expense','receipt','7C4DFF'),
+('c_shop','Mua sắm','expense','shopping_bag','3F51B5'),
+('c_other_exp','Khác','expense','category','607D8B'),
+('c_salary','Lương','income','payments','2E7D32'),
+('c_bonus','Thưởng','income','stars','00BCD4'),
+('c_other_inc','Khác','income','attach_money','607D8B');
 ''';
 
 class AppDatabase {
@@ -88,10 +87,14 @@ class AppDatabase {
     return await openDatabase(
       path,
       version: 1,
+      onConfigure: (db) async {
+        await db.execute('PRAGMA foreign_keys = ON;');
+      },
       onCreate: (db, version) async {
         final okSchema = await _runAssetSqlSafe(db, 'assets/db/schema.sql',
             fallback: _SCHEMA_FALLBACK);
-        final okSeed = await _runAssetSqlSafe(db, 'assets/db/seed.sql',
+        if (!okSchema) {}
+        await _runAssetSqlSafe(db, 'assets/db/seed.sql',
             fallback: _SEED_FALLBACK);
       },
     );

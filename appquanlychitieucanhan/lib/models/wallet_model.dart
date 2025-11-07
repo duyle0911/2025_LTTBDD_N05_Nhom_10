@@ -59,13 +59,13 @@ class WalletModel extends ChangeNotifier {
   String? _selectedWalletId;
 
   static const List<String> _palette = [
-    '#90CAF9', 
-    '#A5D6A7', 
+    '#90CAF9',
+    '#A5D6A7',
     '#80CBC4',
-    '#FFCC80', 
-    '#FFF59D', 
-    '#CE93D8', 
-    '#F48FB1', 
+    '#FFCC80',
+    '#FFF59D',
+    '#CE93D8',
+    '#F48FB1',
     '#B0BEC5',
   ];
 

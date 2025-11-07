@@ -1,4 +1,3 @@
-// lib/models/expense_model.dart
 import 'package:flutter/foundation.dart';
 import 'wallet_model.dart';
 
@@ -75,6 +74,12 @@ class ExpenseModel extends ChangeNotifier {
   List<String> get expenseCategories => List.unmodifiable(_expenseCategories);
   List<String> categoriesOf(String type) =>
       _isIncome(type) ? incomeCategories : expenseCategories;
+
+  // no-op để tương thích với HomePage.initState() nếu có gọi loadCategories()
+  Future<void> loadCategories() async {
+    // dùng danh mục mặc định sẵn ở trên
+    return;
+  }
 
   final Map<String, String> _categoryColors = {
     'Ăn uống': '#E91E63',
