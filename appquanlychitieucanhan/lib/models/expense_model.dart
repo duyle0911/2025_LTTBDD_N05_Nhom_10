@@ -3,7 +3,7 @@ import 'wallet_model.dart';
 
 class TransactionItem {
   final String id;
-  final String type; // 'income' | 'expense'
+  final String type;
   final double amount;
   final String note;
   final String category;
@@ -75,9 +75,7 @@ class ExpenseModel extends ChangeNotifier {
   List<String> categoriesOf(String type) =>
       _isIncome(type) ? incomeCategories : expenseCategories;
 
-  // no-op để tương thích với HomePage.initState() nếu có gọi loadCategories()
   Future<void> loadCategories() async {
-    // dùng danh mục mặc định sẵn ở trên
     return;
   }
 
@@ -270,7 +268,6 @@ class ExpenseModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Shims cho UI cũ
   void removeTransaction(String id, {WalletModel? wm}) {
     final idx = _transactions.indexWhere((t) => t.id == id);
     if (idx == -1) return;

@@ -4,7 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'db/app_db.dart'; // nếu chưa có DB thật, vẫn try/catch an toàn
+import 'db/app_db.dart';
 import 'models/expense_model.dart';
 import 'models/wallet_model.dart';
 import 'screens/home_screen.dart';
@@ -170,7 +170,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       context.read<WalletModel>().seedIfEmpty();
-      await context.read<ExpenseModel>().loadCategories(); // no-op an toàn
+      await context.read<ExpenseModel>().loadCategories();
     });
   }
 

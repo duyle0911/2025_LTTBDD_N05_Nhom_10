@@ -1,4 +1,3 @@
-// lib/screens/wallet_screen.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -17,20 +16,17 @@ class _WalletScreenState extends State<WalletScreen> {
   Color get _purple => const Color.fromARGB(255, 71, 240, 130);
   Color get _red => const Color.fromARGB(255, 7, 143, 227);
 
-  // chuẩn code cho loại ví
   final List<String> _types = const ['cash', 'bank', 'credit', 'savings'];
 
-  // --- Helpers: map VN/EN label -> code; đảm bảo value hợp lệ ---
   String _toCode(String raw) {
     final s = raw.trim().toLowerCase();
     switch (s) {
-      // code đã đúng
       case 'cash':
       case 'bank':
       case 'credit':
       case 'savings':
         return s;
-      // tiếng Việt cũ
+
       case 'tiền mặt':
         return 'cash';
       case 'ngân hàng':
@@ -98,17 +94,14 @@ class _WalletScreenState extends State<WalletScreen> {
     }
   }
 
-  // ============== All / cụ thể ví ở header ==============
-  String _headerSelection = 'all'; // 'all' | walletId
+  String _headerSelection = 'all';
 
-  // ================== Modal tạo/sửa ví ===================
   Future<void> _showWalletForm(BuildContext context, {WalletItem? edit}) async {
     final t = context.l10n;
     final wm = context.read<WalletModel>();
 
     final name = TextEditingController(text: edit?.name ?? '');
 
-    // Chuẩn hoá type về CODE và đảm bảo có trong danh sách
     String type = _ensureInTypes(_toCode(edit?.type ?? _types.first));
 
     final balance = TextEditingController(
@@ -206,7 +199,7 @@ class _WalletScreenState extends State<WalletScreen> {
                       if (edit == null) {
                         final id = wm.addWallet(
                           name: name.text,
-                          type: type, // lưu CODE
+                          type: type,
                           initialBalance: raw,
                         );
                         wm.select(id);
@@ -214,7 +207,7 @@ class _WalletScreenState extends State<WalletScreen> {
                         wm.updateWallet(
                           edit.id,
                           name: name.text,
-                          type: type, // update về CODE
+                          type: type,
                           balance: raw,
                         );
                         wm.select(edit.id);
@@ -320,8 +313,7 @@ class _WalletScreenState extends State<WalletScreen> {
               (w) => ListTile(
                 leading: const Icon(Icons.account_balance_wallet_outlined),
                 title: Text(w.name),
-                subtitle:
-                    Text(_typeLabel(w.type)), // w.type có thể là VN -> map
+                subtitle: Text(_typeLabel(w.type)),
                 trailing: Text(_fmtVND().format(w.balance)),
                 onTap: () {
                   setState(() => _headerSelection = w.id);
@@ -378,7 +370,6 @@ class _WalletScreenState extends State<WalletScreen> {
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
             child: Column(
               children: [
-                // Header tổng + chọn All/1 ví
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
@@ -441,15 +432,12 @@ class _WalletScreenState extends State<WalletScreen> {
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 12),
                 for (int i = 0; i < wm.wallets.length; i++) ...[
                   _buildWalletItem(wm.wallets[i], fmt),
                   const SizedBox(height: 10),
                 ],
-
                 const SizedBox(height: 4),
-                // Form tạo ví inline
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.fromLTRB(14, 12, 14, 16),
@@ -585,7 +573,7 @@ class _WalletScreenState extends State<WalletScreen> {
     final primary = _fromHex(w.colorHex);
     final onCard = _onColor(primary);
 
-    final code = _toCode(w.type); // chuẩn hoá hiển thị cho ví cũ
+    final code = _toCode(w.type);
 
     return InkWell(
       onTap: () {
