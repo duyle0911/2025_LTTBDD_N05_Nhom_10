@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'db/app_db.dart';
 import 'models/expense_model.dart';
 import 'models/wallet_model.dart';
 import 'screens/home_screen.dart';
@@ -18,15 +19,15 @@ import 'screens/about_screen.dart';
 import 'l10n/app_localizations.dart';
 import 'l10n/l10n_ext.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
-    ),
-  );
-
+  try {
+    await AppDatabase().database;
+  } catch (_) {}
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.dark,
+  ));
   runApp(
     MultiProvider(
       providers: [
@@ -73,7 +74,6 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     const seed = Color(0xFF0A84FF);
-
     return MaterialApp(
       onGenerateTitle: (ctx) => ctx.l10n.appTitle,
       debugShowCheckedModeBanner: false,
@@ -88,32 +88,26 @@ class _MyAppState extends State<MyApp> {
       themeMode: ThemeMode.light,
       theme: ThemeData(
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: seed,
-          brightness: Brightness.light,
-        ),
+        colorScheme:
+            ColorScheme.fromSeed(seedColor: seed, brightness: Brightness.light),
         scaffoldBackgroundColor: const Color(0xFFF7F9FC),
         splashFactory: InkSparkle.splashFactory,
         visualDensity: VisualDensity.adaptivePlatformDensity,
-        appBarTheme: const AppBarTheme(
-          centerTitle: true,
-          elevation: 0,
-        ),
-        inputDecorationTheme: InputDecorationTheme(
+        appBarTheme: const AppBarTheme(centerTitle: true, elevation: 0),
+        inputDecorationTheme: const InputDecorationTheme(
           filled: true,
           fillColor: Colors.white,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
-            borderSide: const BorderSide(color: Colors.black12),
+            borderRadius: BorderRadius.all(Radius.circular(14)),
+            borderSide: BorderSide(color: Colors.black12),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
-            borderSide: const BorderSide(color: Colors.black12),
+            borderRadius: BorderRadius.all(Radius.circular(14)),
+            borderSide: BorderSide(color: Colors.black12),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: const BorderRadius.all(Radius.circular(14)),
+            borderRadius: BorderRadius.all(Radius.circular(14)),
             borderSide: BorderSide(color: seed, width: 1.4),
           ),
         ),
@@ -133,8 +127,7 @@ class _MyAppState extends State<MyApp> {
               builder: (context, snap) {
                 if (!snap.hasData) {
                   return const Scaffold(
-                    body: Center(child: CircularProgressIndicator()),
-                  );
+                      body: Center(child: CircularProgressIndicator()));
                 }
                 return snap.data! ? const HomePage() : const LoginScreen();
               },
@@ -145,8 +138,7 @@ class _MyAppState extends State<MyApp> {
       onGenerateRoute: (settings) {
         if (settings.name == SettingsScreen.route) {
           return MaterialPageRoute(
-            builder: (_) => SettingsScreen(onPickLocale: _updateLocale),
-          );
+              builder: (_) => SettingsScreen(onPickLocale: _updateLocale));
         }
         return null;
       },
@@ -187,9 +179,7 @@ class _HomePageState extends State<HomePage> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        body: SafeArea(
-          child: IndexedStack(index: _index, children: _pages),
-        ),
+        body: SafeArea(child: IndexedStack(index: _index, children: _pages)),
         bottomNavigationBar: NavigationBar(
           selectedIndex: _index,
           onDestinationSelected: (i) => setState(() => _index = i),
