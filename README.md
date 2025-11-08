@@ -12,24 +12,24 @@
 | **Công việc / Nhiệm vụ** | **Mô tả công việc** | **Thành viên đảm nhiệm** |
 |----------------------------|----------------------|---------------------------|
 | **Thu thập & Phân tích yêu cầu** |||
-| **Công việc 1** | **Nhiệm vụ 1:** Viết tài liệu yêu cầu SRS | **Lê Đức Duy** |
-|  | **Nhiệm vụ 2:** Tìm hiểu các nhóm chức năng | **Nguyễn Văn Trọng** |
+| **Công việc 1** | **Nhiệm vụ 1:** Viết tài liệu yêu cầu SRS | **Lê&nbsp;Đức&nbsp;Duy** |
+|  | **Nhiệm vụ 2:** Tìm hiểu các nhóm chức năng | **Nguyễn&nbsp;Văn&nbsp;Trọng** |
 | **Phân tích & Thiết kế hệ thống** |||
-| **Công việc 2** | **Nhiệm vụ 3:** Thiết kế sơ đồ Use-case | **Lê Đức Duy** |
-|  | **Nhiệm vụ 4:** Thiết kế sơ đồ tuần tự các chức năng | **Lê Đức Duy** |
-|  | **Nhiệm vụ 5:** Thiết kế sơ đồ hoạt động các chức năng | **Lê Đức Duy** |
-|  | **Nhiệm vụ 6:** Thiết kế giao diện | **Lê Đức Duy** |
+| **Công việc 2** | **Nhiệm vụ 3:** Thiết kế sơ đồ Use-case | **Lê&nbsp;Đức&nbsp;Duy** |
+|  | **Nhiệm vụ 4:** Thiết kế sơ đồ tuần tự các chức năng | **Lê&nbsp;Đức&nbsp;Duy** |
+|  | **Nhiệm vụ 5:** Thiết kế sơ đồ hoạt động các chức năng | **Lê&nbsp;Đức&nbsp;Duy** |
+|  | **Nhiệm vụ 6:** Thiết kế giao diện | **Lê&nbsp;Đức&nbsp;Duy** |
 | **Triển khai giải pháp (Xây dựng phần mềm)** |||
-| **Công việc 3** | **Nhiệm vụ 7:** R1–R2 (Đăng ký, Đăng nhập, CRUD Danh mục) | **Nguyễn Văn Trọng** |
-|  | **Nhiệm vụ 8:** R3–R5 (CRUD Giao dịch, Cập nhật số dư, Dashboard, Biểu đồ, Quản lý Ví) | **Lê Đức Duy** |
+| **Công việc 3** | **Nhiệm vụ 7:** R1–R2 (Đăng ký, Đăng nhập, CRUD Danh mục) | **Nguyễn&nbsp;Văn&nbsp;Trọng** |
+|  | **Nhiệm vụ 8:** R3–R5 (CRUD Giao dịch, Cập nhật số dư, Dashboard, Biểu đồ, Quản lý Ví) | **Lê&nbsp;Đức&nbsp;Duy** |
 | **Kiểm thử & Đánh giá hệ thống** |||
-| **Công việc 4** | **Nhiệm vụ 9:** Lập kế hoạch kiểm thử | **Lê Đức Duy** |
-|  | **Nhiệm vụ 10:** Kiểm thử giao diện | **Lê Đức Duy** |
-|  | **Nhiệm vụ 11:** Kiểm thử tích hợp & chức năng | **Nguyễn Văn Trọng** |
-|  | **Nhiệm vụ 12:** Kiểm thử phi chức năng | **Nguyễn Văn Trọng** |
+| **Công việc 4** | **Nhiệm vụ 9:** Lập kế hoạch kiểm thử | **Lê&nbsp;Đức&nbsp;Duy** |
+|  | **Nhiệm vụ 10:** Kiểm thử giao diện | **Lê&nbsp;Đức&nbsp;Duy** |
+|  | **Nhiệm vụ 11:** Kiểm thử tích hợp & chức năng | **Nguyễn&nbsp;Văn&nbsp;Trọng** |
+|  | **Nhiệm vụ 12:** Kiểm thử phi chức năng | **Nguyễn&nbsp;Văn&nbsp;Trọng** |
 | **Báo cáo & Trình bày sản phẩm** |||
-| **Công việc 5** | **Nhiệm vụ 13:** Chuẩn bị video demo | **Nguyễn Văn Trọng** |
-|  | **Nhiệm vụ 14:** Tổng kết, viết báo cáo cuối cùng, Slide | **Lê Đức Duy** |
+| **Công việc 5** | **Nhiệm vụ 13:** Chuẩn bị video demo | **Nguyễn&nbsp;Văn&nbsp;Trọng** |
+|  | **Nhiệm vụ 14:** Tổng kết, viết báo cáo cuối cùng, Slide | **Lê&nbsp;Đức&nbsp;Duy** |
 
 ---
 
@@ -120,19 +120,26 @@ appquanlychitieucanhan/
 ├── l10n.yaml
 └── README.md
 
-🚀 HƯỚNG DẪN CÀI ĐẶT & CHẠY ỨNG DỤNG
-1️⃣ Cài đặt các gói phụ thuộc:
-    flutter pub get
-2️⃣ Chạy ứng dụng (chọn thiết bị hoặc emulator):
-    flutter run
-    
-🙏 LỜI CẢM ƠN
+## 🚀 HƯỚNG DẪN CÀI ĐẶT & CHẠY ỨNG DỤNG
 
-Nhóm xin gửi lời cảm ơn chân thành đến ThS. Nguyễn Xuân Quế đã tận tình hướng dẫn, hỗ trợ và góp ý trong suốt quá trình thực hiện đồ án.
-Nhờ có sự chỉ bảo của thầy, nhóm đã có thể hoàn thiện ứng dụng này một cách tốt nhất. 💙
+1️⃣ **Cài đặt các gói phụ thuộc:**  
+&nbsp;&nbsp;&nbsp;&nbsp;`flutter pub get`  
 
-📩 MỌI THẮC MẮC HÃY LIÊN HỆ
+2️⃣ **Chạy ứng dụng (chọn thiết bị hoặc emulator):**  
+&nbsp;&nbsp;&nbsp;&nbsp;`flutter run`  
 
-📧 Lê Đức Duy – 23010772@st.phenikaa-uni.edu.vn
+---
 
-💬 Rất mong nhận được phản hồi và góp ý để ứng dụng ngày càng hoàn thiện hơn!
+## 🙏 LỜI CẢM ƠN
+
+Nhóm xin gửi lời cảm ơn chân thành đến **ThS.&nbsp;Nguyễn&nbsp;Xuân&nbsp;Quế**  
+đã tận tình hướng dẫn, hỗ trợ và góp ý trong suốt quá trình thực hiện bài tập lớn.  
+Nhờ có sự chỉ bảo của thầy, nhóm đã có thể hoàn thiện ứng dụng này một cách tốt nhất. 💙  
+
+---
+
+## 📩 MỌI THẮC MẮC HÃY LIÊN HỆ
+
+📧 **Lê&nbsp;Đức&nbsp;Duy – [23010772@st.phenikaa-uni.edu.vn](mailto:23010772@st.phenikaa-uni.edu.vn)**  
+
+💬 *Rất mong nhận được phản hồi và góp ý để ứng dụng ngày càng hoàn thiện hơn!*  
