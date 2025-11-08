@@ -1,12 +1,20 @@
-# 📱 ỨNG DỤNG QUẢN LÝ CHI TIÊU CÁ NHÂN  
+# 📱 ỨNG DỤNG QUẢN LÝ CHI TIÊU CÁ NHÂN
 
-**🎓 Trường Công nghệ Thông tin – Đại học Phenikaa**  
+**🎓 Trường Công nghệ Thông Tin – Đại Học Phenikaa**  
 **📘 Môn học:** Lập trình cho Thiết bị Di Động (N05)  
 **👥 Nhóm:** 10  
-**🧑‍🏫 GVHD:** ThS. Nguyễn Xuân Quế  
+**🧑‍🏫 GVHD:** ThS. Nguyễn Xuân Quế
 
 ---
 
+
+## 🙏 LỜI CẢM ƠN
+
+Nhóm xin gửi lời cảm ơn chân thành đến **ThS. Nguyễn Xuân Quế**  
+đã tận tình hướng dẫn, hỗ trợ và góp ý trong suốt quá trình thực hiện bài tập lớn.  
+Nhờ có sự chỉ bảo của thầy, nhóm đã có thể hoàn thiện ứng dụng này một cách tốt nhất. 💙
+
+---
 ## 🧩 BẢNG PHÂN CÔNG NHIỆM VỤ CHI TIẾT
 
 | **Công việc / Nhiệm vụ** | **Mô tả công việc** | **Thành viên đảm nhiệm** |
@@ -32,8 +40,24 @@
 |  | **Nhiệm vụ 14:** Tổng kết, viết báo cáo cuối cùng, Slide | **Lê&nbsp;Đức&nbsp;Duy** |
 
 ---
+## 🚀 HƯỚNG DẪN CÀI ĐẶT & CHẠY ỨNG DỤNG
 
-## 🧱 CẤU TRÚC THƯ MỤC DỰ ÁN VÀ HƯỚNG DẪN CHẠY ỨNG DỤNG
+1️⃣ **Cài đặt các gói phụ thuộc:**  
+`flutter pub get`
+
+2️⃣ **Chạy ứng dụng (chọn thiết bị hoặc emulator):**  
+`flutter run`
+
+---
+
+## 📩 MỌI THẮC MẮC HÃY LIÊN HỆ
+
+📧 **Lê Đức Duy – [23010772@st.phenikaa-uni.edu.vn](mailto:23010772@st.phenikaa-uni.edu.vn)**
+
+💬 *Rất mong nhận được phản hồi và góp ý để ứng dụng ngày càng hoàn thiện hơn!*
+
+
+## 🧱 CẤU TRÚC THƯ MỤC DỰ ÁN
 
 ```text
 appquanlychitieucanhan/
@@ -58,7 +82,6 @@ appquanlychitieucanhan/
 │   │   ├── category_dao.dart
 │   │   ├── transaction_dao.dart
 │   │   └── wallet_dao.dart
-│
 │   ├── l10n/
 │   │   ├── app_en.arb
 │   │   ├── app_vi.arb
@@ -66,12 +89,10 @@ appquanlychitieucanhan/
 │   │   ├── app_localizations_en.dart
 │   │   ├── app_localizations_vi.dart
 │   │   └── l10n_ext.dart
-│
 │   ├── models/
 │   │   ├── category_icon_store.dart
 │   │   ├── expense_model.dart
 │   │   └── wallet_model.dart
-│
 │   ├── screens/
 │   │   ├── transaction/
 │   │   │   ├── add_expense_screen.dart
@@ -88,10 +109,8 @@ appquanlychitieucanhan/
 │   │   ├── transaction_entry_screen.dart
 │   │   ├── transaction_list_screen.dart
 │   │   └── wallet_screen.dart
-│
 │   ├── theme/
 │   │   └── color_utils.dart
-│
 │   ├── widgets/
 │   │   ├── balance_card.dart
 │   │   ├── icon_picker.dart
@@ -105,7 +124,6 @@ appquanlychitieucanhan/
 │   │   ├── transaction_list_view.dart
 │   │   ├── transaction_search.dart
 │   │   └── transaction_summary.dart
-│
 │   └── main.dart
 │
 ├── android/
@@ -119,27 +137,3 @@ appquanlychitieucanhan/
 ├── pubspec.lock
 ├── l10n.yaml
 └── README.md
-
-## 🚀 HƯỚNG DẪN CÀI ĐẶT & CHẠY ỨNG DỤNG
-
-1️⃣ **Cài đặt các gói phụ thuộc:**  
-&nbsp;&nbsp;&nbsp;&nbsp;`flutter pub get`  
-
-2️⃣ **Chạy ứng dụng (chọn thiết bị hoặc emulator):**  
-&nbsp;&nbsp;&nbsp;&nbsp;`flutter run`  
-
----
-
-## 🙏 LỜI CẢM ƠN
-
-Nhóm xin gửi lời cảm ơn chân thành đến **ThS.&nbsp;Nguyễn&nbsp;Xuân&nbsp;Quế**  
-đã tận tình hướng dẫn, hỗ trợ và góp ý trong suốt quá trình thực hiện bài tập lớn.  
-Nhờ có sự chỉ bảo của thầy, nhóm đã có thể hoàn thiện ứng dụng này một cách tốt nhất. 💙  
-
----
-
-## 📩 MỌI THẮC MẮC HÃY LIÊN HỆ
-
-📧 **Lê&nbsp;Đức&nbsp;Duy – [23010772@st.phenikaa-uni.edu.vn](mailto:23010772@st.phenikaa-uni.edu.vn)**  
-
-💬 *Rất mong nhận được phản hồi và góp ý để ứng dụng ngày càng hoàn thiện hơn!*  
